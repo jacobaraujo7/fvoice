@@ -22,6 +22,8 @@ final class AppState: ObservableObject {
     private let hotkey: HotkeyMonitor = GlobalHotkeyMonitor()
     private let recorder: AudioCaptureService = MicRecorder()
     private let engine: TranscriptionEngine = WhisperKitEngine()
+    private let inserter: TextInserter = PasteTextInserter()
+    private let overlay = RecordingOverlay()
     private var engineReady = false
 
     init() {
@@ -30,7 +32,14 @@ final class AppState: ObservableObject {
             status = .needsInputMonitoring
         }
         requestMicrophoneIfNeeded()
+        requestAccessibilityIfNeeded()
         prepareEngine()
+    }
+
+    private func requestAccessibilityIfNeeded() {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        let trusted = AXIsProcessTrustedWithOptions(options)
+        DebugLog.log("accessibility trusted = \(trusted)")
     }
 
     private func prepareEngine() {
@@ -76,6 +85,7 @@ final class AppState: ObservableObject {
 
     func toggle() {
         if recorder.isRecording {
+            overlay.hide()
             do {
                 let url = try recorder.stopRecording()
                 NSSound(named: "Pop")?.play()
@@ -88,6 +98,7 @@ final class AppState: ObservableObject {
             do {
                 try recorder.startRecording()
                 status = .recording
+                overlay.show()
                 NSSound(named: "Tink")?.play()
             } catch {
                 status = .error("\(error)")
@@ -103,9 +114,7 @@ final class AppState: ObservableObject {
                 if text.isEmpty {
                     status = .idle
                 } else {
-                    let pasteboard = NSPasteboard.general
-                    pasteboard.clearContents()
-                    pasteboard.setString(text, forType: .string)
+                    inserter.insert(text)
                     status = .result(text)
                     NSSound(named: "Glass")?.play()
                 }
