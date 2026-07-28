@@ -7,9 +7,7 @@ final class TypingTextInserter: TextInserter {
     private static let chunkSize = 20
 
     func insert(_ text: String) {
-        Self.waitForModifiersReleased {
-            Self.type(text)
-        }
+        Self.type(text)
     }
 
     private static func type(_ text: String) {
@@ -40,17 +38,5 @@ final class TypingTextInserter: TextInserter {
         }
         flush()
         DebugLog.log("insert: typed \(text.count) chars via unicode keystrokes")
-    }
-
-    private static func waitForModifiersReleased(attempt: Int = 0, then action: @escaping () -> Void) {
-        let flags = NSEvent.modifierFlags.intersection([.command, .option, .control, .shift, .function])
-        if flags.isEmpty || attempt > 40 {
-            if !flags.isEmpty { DebugLog.log("insert: timed out waiting for modifier release") }
-            action()
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                waitForModifiersReleased(attempt: attempt + 1, then: action)
-            }
-        }
     }
 }
