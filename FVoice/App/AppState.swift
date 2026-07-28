@@ -16,7 +16,13 @@ final class AppState: ObservableObject {
         case error(String)
     }
 
-    @Published var status: Status = .warming
+    @Published var status: Status = .warming {
+        didSet { updateAnimTimer() }
+    }
+    /// Drives the frame-swap animation of the menu bar icon (symbolEffect
+    /// doesn't animate inside a MenuBarExtra label).
+    @Published var animPhase = 0
+    private var animTimer: Timer?
 
     var isRecording: Bool { status == .recording }
 
@@ -69,6 +75,23 @@ final class AppState: ObservableObject {
         requestMicrophoneIfNeeded()
         requestAccessibilityIfNeeded()
         prepareEngine()
+        updateAnimTimer()
+    }
+
+    private func updateAnimTimer() {
+        let animating: Bool
+        switch status {
+        case .warming, .downloading, .transcribing, .recording: animating = true
+        default: animating = false
+        }
+        if animating, animTimer == nil {
+            animTimer = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { [weak self] _ in
+                Task { @MainActor in self?.animPhase += 1 }
+            }
+        } else if !animating {
+            animTimer?.invalidate()
+            animTimer = nil
+        }
     }
 
     private func requestAccessibilityIfNeeded() {
