@@ -12,15 +12,27 @@ final class PasteTextInserter: TextInserter {
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
 
-        // Small delay so physical modifiers (the ⌥⌘ that stopped recording)
-        // are released before the synthetic Cmd+V lands.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+        // Wait until the physical modifiers (the ⌥⌘ that stopped recording)
+        // are actually released — otherwise the focused app sees ⌥⌘V.
+        Self.waitForModifiersReleased {
             Self.postCmdV()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 pasteboard.clearContents()
                 if let previous {
                     pasteboard.setString(previous, forType: .string)
                 }
+            }
+        }
+    }
+
+    private static func waitForModifiersReleased(attempt: Int = 0, then action: @escaping () -> Void) {
+        let flags = NSEvent.modifierFlags.intersection([.command, .option, .control, .shift, .function])
+        if flags.isEmpty || attempt > 40 {  // ~4s safety timeout
+            if !flags.isEmpty { DebugLog.log("insert: timed out waiting for modifier release") }
+            action()
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                waitForModifiersReleased(attempt: attempt + 1, then: action)
             }
         }
     }
