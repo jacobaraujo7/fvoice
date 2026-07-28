@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import SwiftUI
 
 @MainActor
@@ -19,14 +20,31 @@ final class AppState: ObservableObject {
 
     var isRecording: Bool { status == .recording }
 
-    private let hotkey: HotkeyMonitor = GlobalHotkeyMonitor()
+    let store = SettingsStore()
+
+    private let hotkey = GlobalHotkeyMonitor()
     private let recorder: AudioCaptureService = MicRecorder()
     private let engine: TranscriptionEngine = WhisperKitEngine()
-    private let inserter: TextInserter = TypingTextInserter()
+    private let typingInserter: TextInserter = TypingTextInserter()
+    private let pasteInserter: TextInserter = PasteTextInserter()
     private let overlay = RecordingOverlay()
     private var engineReady = false
+    private var settingsObserver: AnyCancellable?
+
+    private var inserter: TextInserter {
+        store.settings.insertMode == .paste ? pasteInserter : typingInserter
+    }
 
     init() {
+        hotkey.chord = store.settings.hotkey
+        settingsObserver = store.$settings
+            .removeDuplicates()
+            .sink { [weak self] settings in
+                guard let self, self.hotkey.chord != settings.hotkey else { return }
+                self.hotkey.chord = settings.hotkey
+                self.hotkey.stop()
+                self.hotkey.start()
+            }
         hotkey.onActivation = { [weak self] in self?.toggle() }
         recorder.onInterrupted = { [weak self] in
             guard let self else { return }
@@ -121,9 +139,14 @@ final class AppState: ObservableObject {
         status = .transcribing
         Task {
             do {
-                let raw = try await engine.transcribe(wavURL: url)
+                let raw = try await engine.transcribe(wavURL: url, language: store.settings.language)
                 if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
                     inserter.insert(text)
+                    if store.settings.autoEnter {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            KeyPress.pressReturn()
+                        }
+                    }
                     status = .result(text)
                     NSSound(named: "Glass")?.play()
                 } else {

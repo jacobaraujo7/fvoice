@@ -35,9 +35,12 @@ final class WhisperKitEngine: TranscriptionEngine {
         DebugLog.log("model loaded")
     }
 
-    func transcribe(wavURL: URL) async throws -> String {
+    func transcribe(wavURL: URL, language: String) async throws -> String {
         guard let whisper else { throw WhisperKitEngineError.notPrepared }
-        let options = DecodingOptions(task: .transcribe, language: "pt")
+        let options = DecodingOptions(
+            task: .transcribe,
+            language: language == "auto" ? nil : language
+        )
         let results = try await whisper.transcribe(audioPath: wavURL.path, decodeOptions: options)
         let text = results.map(\.text).joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)

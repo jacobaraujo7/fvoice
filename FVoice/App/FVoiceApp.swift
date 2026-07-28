@@ -9,5 +9,10 @@ struct FVoiceApp: App {
             MenuBarContentView()
                 .environmentObject(state)
         }
+
+        Settings {
+            SettingsView()
+                .environmentObject(state)
+        }
     }
 }

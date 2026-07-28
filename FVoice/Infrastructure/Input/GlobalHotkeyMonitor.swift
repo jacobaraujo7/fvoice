@@ -9,8 +9,19 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
 
     private static let keyCodeSpace: Int64 = 49
 
+    /// Which modifier set (with Space) triggers activation. Restart to apply.
+    var chord: HotkeyChord = .optionSpace
+
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
+
+    private var requiredFlags: CGEventFlags {
+        switch chord {
+        case .optionSpace: return [.maskAlternate]
+        case .controlOptionSpace: return [.maskControl, .maskAlternate]
+        case .commandShiftSpace: return [.maskCommand, .maskShift]
+        }
+    }
 
     @discardableResult
     func start() -> Bool {
@@ -69,11 +80,10 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
             return false
         }
 
+        let modifiers = event.flags.intersection([.maskCommand, .maskAlternate, .maskControl, .maskShift])
         guard type == .keyDown,
               event.getIntegerValueField(.keyboardEventKeycode) == Self.keyCodeSpace,
-              event.flags.contains(.maskAlternate),
-              !event.flags.contains(.maskCommand),
-              !event.flags.contains(.maskControl)
+              modifiers == requiredFlags
         else { return false }
 
         // Ignore key-repeat while Space is held.

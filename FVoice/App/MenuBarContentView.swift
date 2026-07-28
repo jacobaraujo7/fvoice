@@ -40,6 +40,10 @@ struct MenuBarContentView: View {
         }
 
         Divider()
+        SettingsLink {
+            Text("Configurações…")
+        }
+        .keyboardShortcut(",")
         Button("Sair") {
             NSApplication.shared.terminate(nil)
         }
