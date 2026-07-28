@@ -21,10 +21,14 @@ Assinatura ad-hoc (`CODE_SIGN_IDENTITY: "-"`) com bundle id estável `com.jacobm
 
 DDD-lite: `Domain/` (entidades, use cases, protocolos — sem AVFoundation/WhisperKit), `Infrastructure/` (áudio, whisper, input, persistência), `App/` (SwiftUI, MenuBarExtra).
 
+## Hotkey
+
+Default: **⌥⌘ (Option+Command) em modo toggle** — pressione uma vez para começar a gravar, de novo para parar (decisão do usuário; substitui o default original de Right Option push-to-talk). O chord é só de modificadores, então o event tap é listen-only e nada é consumido — atalhos e acentos (Opt+letra) continuam funcionando.
+
 ## Status
 
 - [x] M0 — Scaffold (menu bar app buildando via xcodebuild)
-- [ ] M1 — Captura de áudio
+- [x] M1 — Captura de áudio (16kHz mono, wav de debug em `~/.fvoice/debug/`) + hotkey toggle ⌥⌘
 - [ ] M2 — Transcrição (WhisperKit)
 - [ ] M3 — Hotkey global + inserção de texto
 - [ ] M4 — Robustez (VAD, anti-alucinação)

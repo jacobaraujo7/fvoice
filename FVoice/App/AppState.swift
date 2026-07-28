@@ -1,0 +1,69 @@
+import AVFoundation
+import SwiftUI
+
+@MainActor
+final class AppState: ObservableObject {
+    enum Status: Equatable {
+        case idle
+        case recording
+        case needsInputMonitoring
+        case error(String)
+        case saved(String)
+    }
+
+    @Published var status: Status = .idle
+
+    var isRecording: Bool { status == .recording }
+
+    private let hotkey: HotkeyMonitor = GlobalHotkeyMonitor()
+    private let recorder: AudioCaptureService = MicRecorder()
+
+    init() {
+        hotkey.onActivation = { [weak self] in self?.toggle() }
+        if !hotkey.start() {
+            status = .needsInputMonitoring
+        }
+    }
+
+    func retryHotkey() {
+        if hotkey.start() {
+            if status == .needsInputMonitoring { status = .idle }
+        } else {
+            status = .needsInputMonitoring
+        }
+    }
+
+    func toggle() {
+        if recorder.isRecording {
+            do {
+                let url = try recorder.stopRecording()
+                status = .saved(url.path)
+                NSSound(named: "Pop")?.play()
+            } catch {
+                status = .error("\(error)")
+            }
+        } else {
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    guard granted else {
+                        self.status = .error("Permissão de microfone negada")
+                        return
+                    }
+                    do {
+                        try self.recorder.startRecording()
+                        self.status = .recording
+                        NSSound(named: "Tink")?.play()
+                    } catch {
+                        self.status = .error("\(error)")
+                    }
+                }
+            }
+        }
+    }
+
+    func openInputMonitoringSettings() {
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")!
+        NSWorkspace.shared.open(url)
+    }
+}
