@@ -28,6 +28,7 @@ final class AppState: ObservableObject {
     }
 
     private func requestMicrophoneIfNeeded() {
+        DebugLog.log("mic auth status = \(AVCaptureDevice.authorizationStatus(for: .audio).rawValue) (0=notDetermined 1=restricted 2=denied 3=authorized)")
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized:
             break

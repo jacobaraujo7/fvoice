@@ -17,7 +17,9 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
 
         // Registers the app in the Input Monitoring pane and triggers the
         // system prompt on first run — tapCreate alone fails silently without it.
-        if IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) != kIOHIDAccessTypeGranted {
+        let access = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
+        DebugLog.log("IOHIDCheckAccess(listen) = \(access.rawValue) (0=granted 1=denied 2=unknown)")
+        if access != kIOHIDAccessTypeGranted {
             IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
             return false
         }
@@ -37,8 +39,10 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
             callback: callback,
             userInfo: Unmanaged.passUnretained(self).toOpaque()
         ) else {
+            DebugLog.log("CGEvent.tapCreate FAILED despite Input Monitoring granted")
             return false
         }
+        DebugLog.log("event tap created OK")
 
         self.tap = tap
         let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
