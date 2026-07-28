@@ -1,0 +1,25 @@
+name: FVoice
+options:
+  bundleIdPrefix: com.jacobmoura
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+targets:
+  FVoice:
+    type: application
+    platform: macOS
+    sources:
+      - path: FVoice
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobmoura.fvoice
+        INFOPLIST_FILE: FVoice/App/Info.plist
+        ENABLE_HARDENED_RUNTIME: false
+        GENERATE_INFOPLIST_FILE: false
