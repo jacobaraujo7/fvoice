@@ -31,5 +31,5 @@ Default: **⌥Space (Option+Space) em modo toggle** — pressione uma vez para c
 - [x] M1 — Captura de áudio (16kHz mono, wav de debug em `~/.fvoice/debug/`) + hotkey toggle ⌥Space
 - [x] M2 — Transcrição (WhisperKit large-v3_turbo, `language: pt`, modelo em `~/.fvoice/models`)
 - [x] M3 — Inserção no cursor (clipboard + ⌘V sintético com restore) + overlay de gravação
-- [ ] M4 — Robustez (VAD, anti-alucinação)
+- [x] M4 — Robustez (VAD por RMS, blocklist de alucinações, troca de mic)
 - [ ] M5 — Settings + polish

@@ -16,6 +16,14 @@ final class MicRecorder: AudioCaptureService {
     private var fileURL: URL?
 
     private(set) var isRecording = false
+    /// Seconds of buffers whose RMS crossed the voice threshold (cheap VAD).
+    private(set) var lastSpeechSeconds: Double = 0
+    /// Called on the main queue if the audio device changes mid-recording.
+    var onInterrupted: (() -> Void)?
+
+    private var speechFrames: Int = 0
+    private var configObserver: NSObjectProtocol?
+    private static let voiceRMSThreshold: Float = 0.015
 
     private static let targetFormat = AVAudioFormat(
         commonFormat: .pcmFormatFloat32,
@@ -55,6 +63,19 @@ final class MicRecorder: AudioCaptureService {
             self?.append(buffer: buffer)
         }
 
+        speechFrames = 0
+        lastSpeechSeconds = 0
+        configObserver = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange,
+            object: engine,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self, self.isRecording else { return }
+            DebugLog.log("audio device changed mid-recording — aborting session")
+            _ = try? self.stopRecording()
+            self.onInterrupted?()
+        }
+
         engine.prepare()
         try engine.start()
         isRecording = true
@@ -62,10 +83,15 @@ final class MicRecorder: AudioCaptureService {
 
     func stopRecording() throws -> URL {
         guard isRecording, let url = fileURL else { throw MicRecorderError.notRecording }
+        if let configObserver {
+            NotificationCenter.default.removeObserver(configObserver)
+            self.configObserver = nil
+        }
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
         engine.reset()
         isRecording = false
+        lastSpeechSeconds = Double(speechFrames) / Self.targetFormat.sampleRate
         file = nil
         converter = nil
         fileURL = nil
@@ -92,6 +118,16 @@ final class MicRecorder: AudioCaptureService {
 
         if out.frameLength > 0 {
             try? file.write(from: out)
+            if let data = out.floatChannelData?[0] {
+                var sum: Float = 0
+                for i in 0..<Int(out.frameLength) {
+                    sum += data[i] * data[i]
+                }
+                let rms = (sum / Float(out.frameLength)).squareRoot()
+                if rms > Self.voiceRMSThreshold {
+                    speechFrames += Int(out.frameLength)
+                }
+            }
         }
     }
 }

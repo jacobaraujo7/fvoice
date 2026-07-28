@@ -28,6 +28,12 @@ final class AppState: ObservableObject {
 
     init() {
         hotkey.onActivation = { [weak self] in self?.toggle() }
+        recorder.onInterrupted = { [weak self] in
+            guard let self else { return }
+            self.overlay.hide()
+            self.status = .error("Microfone trocado — gravação cancelada")
+            NSSound(named: "Basso")?.play()
+        }
         if !hotkey.start() {
             status = .needsInputMonitoring
         }
@@ -89,7 +95,12 @@ final class AppState: ObservableObject {
             do {
                 let url = try recorder.stopRecording()
                 NSSound(named: "Pop")?.play()
-                transcribe(url: url)
+                if recorder.lastSpeechSeconds < TranscriptionFilter.minimumSpeechSeconds {
+                    DebugLog.log("skipped transcription — only \(String(format: "%.2f", recorder.lastSpeechSeconds))s of speech")
+                    status = .idle
+                } else {
+                    transcribe(url: url)
+                }
             } catch {
                 status = .error("\(error)")
             }
@@ -110,13 +121,13 @@ final class AppState: ObservableObject {
         status = .transcribing
         Task {
             do {
-                let text = try await engine.transcribe(wavURL: url)
-                if text.isEmpty {
-                    status = .idle
-                } else {
+                let raw = try await engine.transcribe(wavURL: url)
+                if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
                     inserter.insert(text)
                     status = .result(text)
                     NSSound(named: "Glass")?.play()
+                } else {
+                    status = .idle
                 }
             } catch {
                 status = .error("Transcrição falhou: \(error.localizedDescription)")
