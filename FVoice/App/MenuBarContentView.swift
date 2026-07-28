@@ -13,6 +13,11 @@ struct MenuBarContentView: View {
             Text("Salvo: \((path as NSString).lastPathComponent)")
         case .error(let message):
             Text("Erro: \(message)")
+        case .needsMicrophone:
+            Text("Sem permissão de Microfone")
+            Button("Abrir Ajustes de Microfone") {
+                state.openMicrophoneSettings()
+            }
         case .needsInputMonitoring:
             Text("Sem permissão de Input Monitoring")
             Button("Abrir Ajustes de Privacidade") {

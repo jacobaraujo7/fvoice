@@ -7,6 +7,7 @@ final class AppState: ObservableObject {
         case idle
         case recording
         case needsInputMonitoring
+        case needsMicrophone
         case error(String)
         case saved(String)
     }
@@ -23,6 +24,27 @@ final class AppState: ObservableObject {
         if !hotkey.start() {
             status = .needsInputMonitoring
         }
+        requestMicrophoneIfNeeded()
+    }
+
+    private func requestMicrophoneIfNeeded() {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized:
+            break
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                Task { @MainActor [weak self] in
+                    if !granted, self?.status == .idle { self?.status = .needsMicrophone }
+                }
+            }
+        default:
+            if status == .idle { status = .needsMicrophone }
+        }
+    }
+
+    func openMicrophoneSettings() {
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
+        NSWorkspace.shared.open(url)
     }
 
     func retryHotkey() {
