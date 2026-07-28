@@ -37,19 +37,29 @@ final class PasteTextInserter: TextInserter {
         }
     }
 
+    private static let keyCodeCommand: CGKeyCode = 55
+
     private static func postCmdV() {
-        guard let source = CGEventSource(stateID: .hidSystemState),
-              let keyDown = CGEvent(keyboardEventSource: source, virtualKey: keyCodeV, keyDown: true),
-              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: keyCodeV, keyDown: false)
+        guard let source = CGEventSource(stateID: .combinedSessionState),
+              let cmdDown = CGEvent(keyboardEventSource: source, virtualKey: keyCodeCommand, keyDown: true),
+              let vDown = CGEvent(keyboardEventSource: source, virtualKey: keyCodeV, keyDown: true),
+              let vUp = CGEvent(keyboardEventSource: source, virtualKey: keyCodeV, keyDown: false),
+              let cmdUp = CGEvent(keyboardEventSource: source, virtualKey: keyCodeCommand, keyDown: false)
         else {
             DebugLog.log("insert: failed to create CGEvents")
             return
         }
 
-        keyDown.flags = .maskCommand
-        keyUp.flags = .maskCommand
-        keyDown.post(tap: .cgSessionEventTap)
-        keyUp.post(tap: .cgSessionEventTap)
-        DebugLog.log("insert: Cmd+V posted (trusted=\(AXIsProcessTrusted()))")
+        // Full sequence like a real keyboard: Cmd down, V down/up, Cmd up,
+        // with the command flag carried on every event in between.
+        cmdDown.flags = .maskCommand
+        vDown.flags = .maskCommand
+        vUp.flags = .maskCommand
+        cmdUp.flags = []
+
+        for event in [cmdDown, vDown, vUp, cmdUp] {
+            event.post(tap: .cghidEventTap)
+        }
+        DebugLog.log("insert: Cmd+V sequence posted (trusted=\(AXIsProcessTrusted()))")
     }
 }
