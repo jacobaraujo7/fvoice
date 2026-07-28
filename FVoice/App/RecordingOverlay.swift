@@ -19,7 +19,7 @@ final class RecordingOverlay {
         let height: CGFloat = 36
         let frame = NSRect(
             x: screen.frame.midX - width / 2,
-            y: screen.frame.minY + 80,
+            y: screen.visibleFrame.maxY - height - 12,
             width: width,
             height: height
         )
