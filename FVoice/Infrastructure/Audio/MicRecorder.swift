@@ -20,6 +20,8 @@ final class MicRecorder: AudioCaptureService {
     private(set) var lastSpeechSeconds: Double = 0
     /// Called on the main queue if the audio device changes mid-recording.
     var onInterrupted: (() -> Void)?
+    /// Called on the main queue with the current input level (0...1).
+    var onLevel: ((Float) -> Void)?
 
     private var speechFrames: Int = 0
     private var configObserver: NSObjectProtocol?
@@ -126,6 +128,11 @@ final class MicRecorder: AudioCaptureService {
                 let rms = (sum / Float(out.frameLength)).squareRoot()
                 if rms > Self.voiceRMSThreshold {
                     speechFrames += Int(out.frameLength)
+                }
+                if let onLevel {
+                    // Map typical speech RMS (~0.01–0.2) to 0...1.
+                    let level = min(1, rms * 8)
+                    DispatchQueue.main.async { onLevel(level) }
                 }
             }
         }

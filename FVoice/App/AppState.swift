@@ -54,6 +54,9 @@ final class AppState: ObservableObject {
                 }
             }
         hotkey.onActivation = { [weak self] in self?.toggle() }
+        recorder.onLevel = { [weak self] level in
+            self?.overlay.update(level: level)
+        }
         recorder.onInterrupted = { [weak self] in
             guard let self else { return }
             self.overlay.hide()
