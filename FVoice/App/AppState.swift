@@ -22,7 +22,7 @@ final class AppState: ObservableObject {
     private let hotkey: HotkeyMonitor = GlobalHotkeyMonitor()
     private let recorder: AudioCaptureService = MicRecorder()
     private let engine: TranscriptionEngine = WhisperKitEngine()
-    private let inserter: TextInserter = PasteTextInserter()
+    private let inserter: TextInserter = TypingTextInserter()
     private let overlay = RecordingOverlay()
     private var engineReady = false
 
