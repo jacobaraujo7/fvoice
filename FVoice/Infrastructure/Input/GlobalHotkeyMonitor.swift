@@ -11,6 +11,13 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
 
     /// Which modifier set (with Space) triggers activation. Restart to apply.
     var chord: HotkeyChord = .optionSpace
+    /// When true, media Play/Pause (AirPods stem press) also toggles and is
+    /// consumed so it stops controlling playback. Takes effect immediately.
+    var mediaKeyEnabled = false
+
+    private static let systemDefinedEventType = CGEventType(rawValue: 14)!  // NX_SYSDEFINED
+    private static let mediaKeySubtype: Int16 = 8
+    private static let keyPlayPause: Int = 16  // NX_KEYTYPE_PLAY
 
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
@@ -37,6 +44,7 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
         }
 
         let mask = CGEventMask(1 << CGEventType.keyDown.rawValue)
+            | CGEventMask(1 << Self.systemDefinedEventType.rawValue)
         let callback: CGEventTapCallBack = { _, type, event, refcon in
             let monitor = Unmanaged<GlobalHotkeyMonitor>.fromOpaque(refcon!).takeUnretainedValue()
             if monitor.handle(type: type, event: event) {
@@ -80,6 +88,10 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
             return false
         }
 
+        if type == Self.systemDefinedEventType {
+            return handleMediaKey(event)
+        }
+
         let modifiers = event.flags.intersection([.maskCommand, .maskAlternate, .maskControl, .maskShift])
         guard type == .keyDown,
               event.getIntegerValueField(.keyboardEventKeycode) == Self.keyCodeSpace,
@@ -91,6 +103,28 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
 
         DispatchQueue.main.async { [weak self] in
             self?.onActivation?()
+        }
+        return true
+    }
+
+    /// Returns true (consume) when the event is a Play/Pause press and the
+    /// media-key toggle is enabled. Both key-down and key-up are consumed so
+    /// the media system never sees half a press.
+    private func handleMediaKey(_ event: CGEvent) -> Bool {
+        guard mediaKeyEnabled,
+              let nsEvent = NSEvent(cgEvent: event),
+              nsEvent.subtype.rawValue == Self.mediaKeySubtype
+        else { return false }
+
+        let data = nsEvent.data1
+        let keyCode = (data & 0xFFFF_0000) >> 16
+        guard keyCode == Self.keyPlayPause else { return false }
+
+        let isKeyDown = ((data & 0xFF00) >> 8) == 0x0A
+        if isKeyDown {
+            DispatchQueue.main.async { [weak self] in
+                self?.onActivation?()
+            }
         }
         return true
     }

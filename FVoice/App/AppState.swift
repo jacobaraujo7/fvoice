@@ -37,13 +37,17 @@ final class AppState: ObservableObject {
 
     init() {
         hotkey.chord = store.settings.hotkey
+        hotkey.mediaKeyEnabled = store.settings.mediaKeyToggle
         settingsObserver = store.$settings
             .removeDuplicates()
             .sink { [weak self] settings in
-                guard let self, self.hotkey.chord != settings.hotkey else { return }
-                self.hotkey.chord = settings.hotkey
-                self.hotkey.stop()
-                self.hotkey.start()
+                guard let self else { return }
+                self.hotkey.mediaKeyEnabled = settings.mediaKeyToggle
+                if self.hotkey.chord != settings.hotkey {
+                    self.hotkey.chord = settings.hotkey
+                    self.hotkey.stop()
+                    self.hotkey.start()
+                }
             }
         hotkey.onActivation = { [weak self] in self?.toggle() }
         recorder.onInterrupted = { [weak self] in

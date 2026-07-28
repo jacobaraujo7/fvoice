@@ -24,6 +24,11 @@ struct SettingsView: View {
                 }
             }
 
+            Toggle("Botão dos AirPods (Play/Pause) grava", isOn: binding(\.mediaKeyToggle))
+            Text("Enquanto ligado, o apertão na haste não controla mais a música.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
             Toggle("Enter automático após inserir", isOn: binding(\.autoEnter))
             Text("Útil para enviar o prompt direto ao Claude Code.")
                 .font(.caption)
