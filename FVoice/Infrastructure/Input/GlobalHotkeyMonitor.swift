@@ -1,4 +1,5 @@
 import Cocoa
+import IOKit.hid
 
 /// CGEvent tap (listen-only) that fires when the Option+Command chord becomes
 /// active. Modifier-only chord, so nothing needs to be consumed and Opt+letter
@@ -13,6 +14,13 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
     @discardableResult
     func start() -> Bool {
         guard tap == nil else { return true }
+
+        // Registers the app in the Input Monitoring pane and triggers the
+        // system prompt on first run — tapCreate alone fails silently without it.
+        if IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) != kIOHIDAccessTypeGranted {
+            IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
+            return false
+        }
 
         let mask = CGEventMask(1 << CGEventType.flagsChanged.rawValue)
         let callback: CGEventTapCallBack = { _, type, event, refcon in
