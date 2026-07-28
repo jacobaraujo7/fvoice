@@ -12,9 +12,23 @@ final class PasteTextInserter: TextInserter {
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
 
-        guard let source = CGEventSource(stateID: .combinedSessionState),
-              let keyDown = CGEvent(keyboardEventSource: source, virtualKey: Self.keyCodeV, keyDown: true),
-              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: Self.keyCodeV, keyDown: false)
+        // Small delay so physical modifiers (the ⌥⌘ that stopped recording)
+        // are released before the synthetic Cmd+V lands.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            Self.postCmdV()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                pasteboard.clearContents()
+                if let previous {
+                    pasteboard.setString(previous, forType: .string)
+                }
+            }
+        }
+    }
+
+    private static func postCmdV() {
+        guard let source = CGEventSource(stateID: .hidSystemState),
+              let keyDown = CGEvent(keyboardEventSource: source, virtualKey: keyCodeV, keyDown: true),
+              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: keyCodeV, keyDown: false)
         else {
             DebugLog.log("insert: failed to create CGEvents")
             return
@@ -22,15 +36,8 @@ final class PasteTextInserter: TextInserter {
 
         keyDown.flags = .maskCommand
         keyUp.flags = .maskCommand
-        keyDown.post(tap: .cghidEventTap)
-        keyUp.post(tap: .cghidEventTap)
-
-        // Restore after the paste has been consumed by the focused app.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            pasteboard.clearContents()
-            if let previous {
-                pasteboard.setString(previous, forType: .string)
-            }
-        }
+        keyDown.post(tap: .cgSessionEventTap)
+        keyUp.post(tap: .cgSessionEventTap)
+        DebugLog.log("insert: Cmd+V posted (trusted=\(AXIsProcessTrusted()))")
     }
 }
