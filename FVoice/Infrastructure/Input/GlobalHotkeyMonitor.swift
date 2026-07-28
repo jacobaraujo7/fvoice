@@ -1,15 +1,16 @@
 import Cocoa
 import IOKit.hid
 
-/// CGEvent tap (listen-only) that fires when the Option+Command chord becomes
-/// active. Modifier-only chord, so nothing needs to be consumed and Opt+letter
-/// accents keep working. Requires Input Monitoring permission.
+/// Active CGEvent tap that fires on Option+Space and consumes the event so the
+/// focused app never sees it (Opt+Space would otherwise type a non-breaking
+/// space). Requires Input Monitoring + Accessibility.
 final class GlobalHotkeyMonitor: HotkeyMonitor {
     var onActivation: (() -> Void)?
 
+    private static let keyCodeSpace: Int64 = 49
+
     private var tap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
-    private var comboWasActive = false
 
     @discardableResult
     func start() -> Bool {
@@ -24,25 +25,27 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
             return false
         }
 
-        let mask = CGEventMask(1 << CGEventType.flagsChanged.rawValue)
+        let mask = CGEventMask(1 << CGEventType.keyDown.rawValue)
         let callback: CGEventTapCallBack = { _, type, event, refcon in
             let monitor = Unmanaged<GlobalHotkeyMonitor>.fromOpaque(refcon!).takeUnretainedValue()
-            monitor.handle(type: type, event: event)
+            if monitor.handle(type: type, event: event) {
+                return nil  // consume: the focused app must not receive the key
+            }
             return Unmanaged.passUnretained(event)
         }
 
         guard let tap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
             place: .headInsertEventTap,
-            options: .listenOnly,
+            options: .defaultTap,
             eventsOfInterest: mask,
             callback: callback,
             userInfo: Unmanaged.passUnretained(self).toOpaque()
         ) else {
-            DebugLog.log("CGEvent.tapCreate FAILED despite Input Monitoring granted")
+            DebugLog.log("CGEvent.tapCreate FAILED (active tap needs Accessibility)")
             return false
         }
-        DebugLog.log("event tap created OK")
+        DebugLog.log("event tap created OK (Opt+Space)")
 
         self.tap = tap
         let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
@@ -57,23 +60,28 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
         if let runLoopSource { CFRunLoopRemoveSource(CFRunLoopGetMain(), runLoopSource, .commonModes) }
         tap = nil
         runLoopSource = nil
-        comboWasActive = false
     }
 
-    private func handle(type: CGEventType, event: CGEvent) {
+    /// Returns true when the event was the hotkey and must be consumed.
+    private func handle(type: CGEventType, event: CGEvent) -> Bool {
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
             if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
-            return
+            return false
         }
 
-        let flags = event.flags
-        let comboActive = flags.contains(.maskAlternate) && flags.contains(.maskCommand)
-        defer { comboWasActive = comboActive }
+        guard type == .keyDown,
+              event.getIntegerValueField(.keyboardEventKeycode) == Self.keyCodeSpace,
+              event.flags.contains(.maskAlternate),
+              !event.flags.contains(.maskCommand),
+              !event.flags.contains(.maskControl)
+        else { return false }
 
-        // Rising edge only: fire once when both modifiers become held together.
-        guard comboActive, !comboWasActive else { return }
+        // Ignore key-repeat while Space is held.
+        guard event.getIntegerValueField(.keyboardEventAutorepeat) == 0 else { return true }
+
         DispatchQueue.main.async { [weak self] in
             self?.onActivation?()
         }
+        return true
     }
 }

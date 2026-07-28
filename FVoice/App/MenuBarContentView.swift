@@ -10,9 +10,9 @@ struct MenuBarContentView: View {
         case .warming:
             Text("Carregando modelo…")
         case .idle:
-            Text("Pronto — ⌥⌘ para gravar")
+            Text("Pronto — ⌥Space para gravar")
         case .recording:
-            Text("Gravando… ⌥⌘ para parar")
+            Text("Gravando… ⌥Space para parar")
         case .transcribing:
             Text("Transcrevendo…")
         case .result(let text):

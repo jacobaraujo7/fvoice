@@ -12,7 +12,7 @@ final class PasteTextInserter: TextInserter {
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
 
-        // Wait until the physical modifiers (the ⌥⌘ that stopped recording)
+        // Wait until the physical modifiers (the ⌥ that stopped recording)
         // are actually released — otherwise the focused app sees ⌥⌘V.
         Self.waitForModifiersReleased {
             Self.postCmdV()

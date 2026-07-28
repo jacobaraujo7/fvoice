@@ -15,7 +15,7 @@ O `.app` sai em `build/` (ou DerivedData, dependendo da invocação). O `.xcodep
 
 ## Assinatura e permissões
 
-Assinatura ad-hoc (`CODE_SIGN_IDENTITY: "-"`) com bundle id estável `com.jacobmoura.fvoice`. O macOS revoga Accessibility/Input Monitoring quando a assinatura muda entre builds — se o hotkey global parar de funcionar após rebuild, remova e re-adicione o FVoice em System Settings → Privacy & Security → Accessibility e Input Monitoring.
+Assinado com certificado Apple Development (team `U843T2P7A2`), bundle id estável `com.jacobmoura.fvoice` — identidade estável faz as permissões (Microphone, Input Monitoring, Accessibility) sobreviverem a rebuilds. Lançar sempre via `open` (ou task Run do Cockpit): rodar o binário direto do terminal faz o TCC atribuir permissões ao terminal, não ao app.
 
 ## Arquitetura
 
@@ -23,13 +23,13 @@ DDD-lite: `Domain/` (entidades, use cases, protocolos — sem AVFoundation/Whisp
 
 ## Hotkey
 
-Default: **⌥⌘ (Option+Command) em modo toggle** — pressione uma vez para começar a gravar, de novo para parar (decisão do usuário; substitui o default original de Right Option push-to-talk). O chord é só de modificadores, então o event tap é listen-only e nada é consumido — atalhos e acentos (Opt+letra) continuam funcionando.
+Default: **⌥Space (Option+Space) em modo toggle** — pressione uma vez para começar a gravar, de novo para parar (decisão do usuário; substitui o default original de Right Option push-to-talk). O evento do hotkey é consumido pelo tap ativo, então o app em foco nunca recebe o Opt+Space.
 
 ## Status
 
 - [x] M0 — Scaffold (menu bar app buildando via xcodebuild)
-- [x] M1 — Captura de áudio (16kHz mono, wav de debug em `~/.fvoice/debug/`) + hotkey toggle ⌥⌘
-- [ ] M2 — Transcrição (WhisperKit)
-- [ ] M3 — Hotkey global + inserção de texto
+- [x] M1 — Captura de áudio (16kHz mono, wav de debug em `~/.fvoice/debug/`) + hotkey toggle ⌥Space
+- [x] M2 — Transcrição (WhisperKit large-v3_turbo, `language: pt`, modelo em `~/.fvoice/models`)
+- [x] M3 — Inserção no cursor (clipboard + ⌘V sintético com restore) + overlay de gravação
 - [ ] M4 — Robustez (VAD, anti-alucinação)
 - [ ] M5 — Settings + polish
