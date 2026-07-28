@@ -1,0 +1,22 @@
+{
+  "tasks": [
+    {
+      "label": "Generate",
+      "command": "xcodegen",
+      "args": ["generate"],
+      "kind": "oneShot"
+    },
+    {
+      "label": "Build",
+      "command": "sh",
+      "args": ["-c", "xcodegen generate && xcodebuild -scheme FVoice -configuration Debug -derivedDataPath build build"],
+      "kind": "oneShot"
+    },
+    {
+      "label": "Run",
+      "command": "sh",
+      "args": ["-c", "xcodegen generate && xcodebuild -scheme FVoice -configuration Debug -derivedDataPath build build && pkill -x FVoice; ./build/Build/Products/Debug/FVoice.app/Contents/MacOS/FVoice"],
+      "kind": "watch"
+    }
+  ]
+}
