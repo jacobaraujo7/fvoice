@@ -23,6 +23,7 @@ final class AppState: ObservableObject {
     let store = SettingsStore()
 
     private let hotkey = GlobalHotkeyMonitor()
+    private let mediaRemote = MediaKeyRemote()
     private let recorder: AudioCaptureService = MicRecorder()
     private let engine: TranscriptionEngine = WhisperKitEngine()
     private let typingInserter: TextInserter = TypingTextInserter()
@@ -38,11 +39,14 @@ final class AppState: ObservableObject {
     init() {
         hotkey.chord = store.settings.hotkey
         hotkey.mediaKeyEnabled = store.settings.mediaKeyToggle
+        mediaRemote.onActivation = { [weak self] in self?.toggle() }
+        if store.settings.mediaKeyToggle { mediaRemote.enable() }
         settingsObserver = store.$settings
             .removeDuplicates()
             .sink { [weak self] settings in
                 guard let self else { return }
                 self.hotkey.mediaKeyEnabled = settings.mediaKeyToggle
+                settings.mediaKeyToggle ? self.mediaRemote.enable() : self.mediaRemote.disable()
                 if self.hotkey.chord != settings.hotkey {
                     self.hotkey.chord = settings.hotkey
                     self.hotkey.stop()
