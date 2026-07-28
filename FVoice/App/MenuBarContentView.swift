@@ -5,12 +5,19 @@ struct MenuBarContentView: View {
 
     var body: some View {
         switch state.status {
+        case .downloading(let fraction):
+            Text("Baixando modelo… \(Int(fraction * 100))%")
+        case .warming:
+            Text("Carregando modelo…")
         case .idle:
             Text("Pronto — ⌥⌘ para gravar")
         case .recording:
             Text("Gravando… ⌥⌘ para parar")
-        case .saved(let path):
-            Text("Salvo: \((path as NSString).lastPathComponent)")
+        case .transcribing:
+            Text("Transcrevendo…")
+        case .result(let text):
+            Text(text.count > 60 ? String(text.prefix(60)) + "…" : text)
+            Text("(copiado para o clipboard)")
         case .error(let message):
             Text("Erro: \(message)")
         case .needsMicrophone:

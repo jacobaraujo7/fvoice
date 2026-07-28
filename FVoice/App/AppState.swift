@@ -4,20 +4,25 @@ import SwiftUI
 @MainActor
 final class AppState: ObservableObject {
     enum Status: Equatable {
+        case downloading(Double)
+        case warming
         case idle
         case recording
+        case transcribing
+        case result(String)
         case needsInputMonitoring
         case needsMicrophone
         case error(String)
-        case saved(String)
     }
 
-    @Published var status: Status = .idle
+    @Published var status: Status = .warming
 
     var isRecording: Bool { status == .recording }
 
     private let hotkey: HotkeyMonitor = GlobalHotkeyMonitor()
     private let recorder: AudioCaptureService = MicRecorder()
+    private let engine: TranscriptionEngine = WhisperKitEngine()
+    private var engineReady = false
 
     init() {
         hotkey.onActivation = { [weak self] in self?.toggle() }
@@ -25,6 +30,24 @@ final class AppState: ObservableObject {
             status = .needsInputMonitoring
         }
         requestMicrophoneIfNeeded()
+        prepareEngine()
+    }
+
+    private func prepareEngine() {
+        Task {
+            do {
+                try await engine.prepare { [weak self] fraction in
+                    Task { @MainActor in
+                        if fraction < 1.0 { self?.status = .downloading(fraction) }
+                    }
+                }
+                engineReady = true
+                if !isRecording { status = .idle }
+            } catch {
+                status = .error("Falha ao carregar modelo: \(error.localizedDescription)")
+                DebugLog.log("engine prepare failed: \(error)")
+            }
+        }
     }
 
     private func requestMicrophoneIfNeeded() {
@@ -35,17 +58,12 @@ final class AppState: ObservableObject {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .audio) { granted in
                 Task { @MainActor [weak self] in
-                    if !granted, self?.status == .idle { self?.status = .needsMicrophone }
+                    if !granted { self?.status = .needsMicrophone }
                 }
             }
         default:
-            if status == .idle { status = .needsMicrophone }
+            status = .needsMicrophone
         }
-    }
-
-    func openMicrophoneSettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
-        NSWorkspace.shared.open(url)
     }
 
     func retryHotkey() {
@@ -60,29 +78,47 @@ final class AppState: ObservableObject {
         if recorder.isRecording {
             do {
                 let url = try recorder.stopRecording()
-                status = .saved(url.path)
                 NSSound(named: "Pop")?.play()
+                transcribe(url: url)
             } catch {
                 status = .error("\(error)")
             }
         } else {
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    guard granted else {
-                        self.status = .error("Permissão de microfone negada")
-                        return
-                    }
-                    do {
-                        try self.recorder.startRecording()
-                        self.status = .recording
-                        NSSound(named: "Tink")?.play()
-                    } catch {
-                        self.status = .error("\(error)")
-                    }
-                }
+            guard engineReady else { return }
+            do {
+                try recorder.startRecording()
+                status = .recording
+                NSSound(named: "Tink")?.play()
+            } catch {
+                status = .error("\(error)")
             }
         }
+    }
+
+    private func transcribe(url: URL) {
+        status = .transcribing
+        Task {
+            do {
+                let text = try await engine.transcribe(wavURL: url)
+                if text.isEmpty {
+                    status = .idle
+                } else {
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.clearContents()
+                    pasteboard.setString(text, forType: .string)
+                    status = .result(text)
+                    NSSound(named: "Glass")?.play()
+                }
+            } catch {
+                status = .error("Transcrição falhou: \(error.localizedDescription)")
+                DebugLog.log("transcribe failed: \(error)")
+            }
+        }
+    }
+
+    func openMicrophoneSettings() {
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
+        NSWorkspace.shared.open(url)
     }
 
     func openInputMonitoringSettings() {
