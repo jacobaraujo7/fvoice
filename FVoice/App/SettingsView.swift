@@ -40,6 +40,11 @@ struct SettingsView: View {
         }
         .padding(20)
         .frame(width: 380)
+        .onAppear {
+            NSApp.activate(ignoringOtherApps: true)
+            NSApp.windows.first { $0.identifier?.rawValue.contains("Settings") == true }?
+                .makeKeyAndOrderFront(nil)
+        }
     }
 
     private func binding<T>(_ keyPath: WritableKeyPath<AppSettings, T>) -> Binding<T> {

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     @EnvironmentObject var state: AppState
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         switch state.status {
@@ -40,8 +41,10 @@ struct MenuBarContentView: View {
         }
 
         Divider()
-        SettingsLink {
-            Text("Configurações…")
+        Button("Configurações…") {
+            // LSUIElement apps open windows behind everything unless activated.
+            NSApp.activate(ignoringOtherApps: true)
+            openSettings()
         }
         .keyboardShortcut(",")
         Button("Sair") {
