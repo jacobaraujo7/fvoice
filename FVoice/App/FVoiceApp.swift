@@ -5,8 +5,11 @@ struct FVoiceApp: App {
     @StateObject private var state = AppState()
 
     var body: some Scene {
-        MenuBarExtra("FVoice", systemImage: state.isRecording ? "record.circle.fill" : "waveform") {
+        MenuBarExtra {
             MenuBarContentView()
+                .environmentObject(state)
+        } label: {
+            MenuBarLabel()
                 .environmentObject(state)
         }
 
