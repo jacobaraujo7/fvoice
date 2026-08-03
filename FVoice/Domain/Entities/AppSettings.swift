@@ -26,6 +26,18 @@ enum HotkeyChord: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+enum EngineChoice: String, Codable, CaseIterable, Identifiable {
+    case whisper
+    case apple
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .whisper: return "Whisper (large-v3 turbo)"
+        case .apple: return "Apple SpeechTranscriber"
+        }
+    }
+}
+
 struct AppSettings: Codable, Equatable {
     var language: String = "pt"          // "auto" = detect (opt-in only)
     var insertMode: InsertMode = .typing
@@ -35,6 +47,7 @@ struct AppSettings: Codable, Equatable {
     /// AirPods stem press (media Play/Pause) toggles recording. While on,
     /// the press no longer controls media playback.
     var mediaKeyToggle: Bool = false
+    var engine: EngineChoice = .whisper
 
     init() {}
 
@@ -48,5 +61,6 @@ struct AppSettings: Codable, Equatable {
         hotkey = try c.decodeIfPresent(HotkeyChord.self, forKey: .hotkey) ?? .optionSpace
         launchAtLogin = try c.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         mediaKeyToggle = try c.decodeIfPresent(Bool.self, forKey: .mediaKeyToggle) ?? false
+        engine = try c.decodeIfPresent(EngineChoice.self, forKey: .engine) ?? .whisper
     }
 }

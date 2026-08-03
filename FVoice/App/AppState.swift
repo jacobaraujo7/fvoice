@@ -31,7 +31,15 @@ final class AppState: ObservableObject {
     private let hotkey = GlobalHotkeyMonitor()
     private let mediaRemote = MediaKeyRemote()
     private let recorder: AudioCaptureService = MicRecorder()
-    private let engine: TranscriptionEngine = WhisperKitEngine()
+    private let whisperEngine: TranscriptionEngine = WhisperKitEngine()
+    private let appleEngine: TranscriptionEngine? = {
+        if #available(macOS 26.0, *) { return AppleSpeechEngine() }
+        return nil
+    }()
+    private var engine: TranscriptionEngine {
+        store.settings.engine == .apple ? (appleEngine ?? whisperEngine) : whisperEngine
+    }
+    private var activeEngineChoice: EngineChoice = .whisper
     private let typingInserter: TextInserter = TypingTextInserter()
     private let pasteInserter: TextInserter = PasteTextInserter()
     private let overlay = RecordingOverlay()
@@ -57,6 +65,12 @@ final class AppState: ObservableObject {
                 guard let self else { return }
                 self.hotkey.mediaKeyEnabled = settings.mediaKeyToggle
                 settings.mediaKeyToggle ? self.mediaRemote.enable() : self.mediaRemote.disable()
+                if settings.engine != self.activeEngineChoice {
+                    self.activeEngineChoice = settings.engine
+                    self.engineReady = false
+                    self.status = .warming
+                    self.prepareEngine()
+                }
                 if self.hotkey.chord != settings.hotkey {
                     self.hotkey.chord = settings.hotkey
                     self.hotkey.stop()
@@ -80,6 +94,7 @@ final class AppState: ObservableObject {
         }
         requestMicrophoneIfNeeded()
         requestAccessibilityIfNeeded()
+        activeEngineChoice = store.settings.engine
         prepareEngine()
         updateAnimTimer()
     }

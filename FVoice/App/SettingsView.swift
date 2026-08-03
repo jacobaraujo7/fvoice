@@ -36,7 +36,18 @@ struct SettingsView: View {
 
             Toggle("Abrir no login", isOn: binding(\.launchAtLogin))
 
-            LabeledContent("Modelo", value: "large-v3 turbo (fixo na v1)")
+            if #available(macOS 26.0, *) {
+                Picker("Engine de transcrição", selection: binding(\.engine)) {
+                    ForEach(EngineChoice.allCases) { choice in
+                        Text(choice.label).tag(choice)
+                    }
+                }
+                Text("Apple: mais rápido; Whisper: melhor com termos técnicos em inglês.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                LabeledContent("Engine", value: "Whisper large-v3 turbo")
+            }
         }
         .padding(20)
         .frame(width: 380)
