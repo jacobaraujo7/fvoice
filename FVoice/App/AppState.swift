@@ -187,7 +187,9 @@ final class AppState: ObservableObject {
         status = .transcribing
         Task {
             do {
-                let raw = try await engine.transcribe(wavURL: url, language: store.settings.language)
+                let trimmed = SilenceTrimmer.trim(url)
+                let raw = try await engine.transcribe(wavURL: trimmed, language: store.settings.language)
+                if trimmed != url { try? FileManager.default.removeItem(at: trimmed) }
                 if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
                     inserter.insert(text)
                     if store.settings.autoEnter {
