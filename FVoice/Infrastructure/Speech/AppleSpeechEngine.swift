@@ -11,6 +11,9 @@ final class AppleSpeechEngine: TranscriptionEngine {
         case localeUnsupported(String)
     }
 
+    /// Locales whose assets were already verified this session.
+    private var verifiedLocales = Set<String>()
+
     private static func locale(for language: String) -> Locale {
         switch language {
         case "en": return Locale(identifier: "en-US")
@@ -64,6 +67,7 @@ final class AppleSpeechEngine: TranscriptionEngine {
     }
 
     private func ensureAssets(for locale: Locale) async throws {
+        guard !verifiedLocales.contains(locale.identifier) else { return }
         let transcriber = SpeechTranscriber(
             locale: locale,
             transcriptionOptions: [],
@@ -74,5 +78,6 @@ final class AppleSpeechEngine: TranscriptionEngine {
             DebugLog.log("downloading apple speech assets for \(locale.identifier)…")
             try await request.downloadAndInstall()
         }
+        verifiedLocales.insert(locale.identifier)
     }
 }
