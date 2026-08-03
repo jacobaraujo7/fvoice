@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/fvoice-icon-256.png" width="128" alt="FVoice" />
+</p>
+
 # FVoice
 
 App de ditado (speech-to-text) 100% local para macOS (Apple Silicon). Menu bar app, push-to-talk global, transcrição via WhisperKit no Neural Engine, foco em PT-BR.
