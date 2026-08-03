@@ -38,6 +38,10 @@ final class AppState: ObservableObject {
     private var engineReady = false
     private var settingsObserver: AnyCancellable?
 
+    /// Safety net: stop and transcribe if a recording is left running.
+    private static let maxRecordingSeconds: TimeInterval = 120
+    private var autoStopTimer: Timer?
+
     private var inserter: TextInserter {
         store.settings.insertMode == .paste ? pasteInserter : typingInserter
     }
@@ -146,6 +150,8 @@ final class AppState: ObservableObject {
     /// Discards the current recording without transcribing (Esc).
     func cancelRecording() {
         guard recorder.isRecording else { return }
+        autoStopTimer?.invalidate()
+        autoStopTimer = nil
         overlay.hide()
         if let url = try? recorder.stopRecording() {
             try? FileManager.default.removeItem(at: url)
@@ -157,6 +163,8 @@ final class AppState: ObservableObject {
 
     func toggle() {
         if recorder.isRecording {
+            autoStopTimer?.invalidate()
+            autoStopTimer = nil
             overlay.hide()
             do {
                 let url = try recorder.stopRecording()
@@ -177,6 +185,13 @@ final class AppState: ObservableObject {
                 status = .recording
                 overlay.show()
                 NSSound(named: "Tink")?.play()
+                autoStopTimer = Timer.scheduledTimer(withTimeInterval: Self.maxRecordingSeconds, repeats: false) { [weak self] _ in
+                    Task { @MainActor in
+                        guard let self, self.recorder.isRecording else { return }
+                        DebugLog.log("auto-stop after \(Int(Self.maxRecordingSeconds))s")
+                        self.toggle()
+                    }
+                }
             } catch {
                 status = .error("\(error)")
             }
