@@ -1,21 +1,15 @@
 {
   "tasks": [
     {
-      "label": "Generate",
-      "command": "xcodegen",
-      "args": ["generate"],
-      "kind": "oneShot"
-    },
-    {
-      "label": "Build",
-      "command": "sh",
-      "args": ["-c", "xcodegen generate && xcodebuild -scheme FVoice -configuration Debug -derivedDataPath build build"],
-      "kind": "oneShot"
-    },
-    {
       "label": "Run",
       "command": "sh",
       "args": ["-c", "xcodegen generate && xcodebuild -scheme FVoice -configuration Debug -derivedDataPath build build && { pkill -x FVoice; sleep 0.5; open build/Build/Products/Debug/FVoice.app; }"],
+      "kind": "oneShot"
+    },
+    {
+      "label": "Release",
+      "command": "sh",
+      "args": ["-c", "xcodegen generate && xcodebuild -scheme FVoice -configuration Release -derivedDataPath build build && { pkill -x FVoice; sleep 0.5; open build/Build/Products/Release/FVoice.app; }"],
       "kind": "oneShot"
     }
   ]
