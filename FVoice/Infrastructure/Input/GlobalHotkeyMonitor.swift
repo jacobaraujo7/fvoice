@@ -8,6 +8,12 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
     var onActivation: (() -> Void)?
 
     private static let keyCodeSpace: Int64 = 49
+    private static let keyCodeEscape: Int64 = 53
+
+    /// Fired when Esc is pressed while `escapeActive()` returns true (the Esc
+    /// press is consumed in that case — used to cancel a recording).
+    var onCancel: (() -> Void)?
+    var escapeActive: (() -> Bool) = { false }
 
     /// Which modifier set (with Space) triggers activation. Restart to apply.
     var chord: HotkeyChord = .optionSpace
@@ -93,6 +99,17 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
         }
 
         let modifiers = event.flags.intersection([.maskCommand, .maskAlternate, .maskControl, .maskShift])
+
+        if type == .keyDown,
+           event.getIntegerValueField(.keyboardEventKeycode) == Self.keyCodeEscape,
+           modifiers.isEmpty,
+           escapeActive() {
+            DispatchQueue.main.async { [weak self] in
+                self?.onCancel?()
+            }
+            return true
+        }
+
         guard type == .keyDown,
               event.getIntegerValueField(.keyboardEventKeycode) == Self.keyCodeSpace,
               modifiers == requiredFlags

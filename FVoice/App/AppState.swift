@@ -60,6 +60,8 @@ final class AppState: ObservableObject {
                 }
             }
         hotkey.onActivation = { [weak self] in self?.toggle() }
+        hotkey.onCancel = { [weak self] in self?.cancelRecording() }
+        hotkey.escapeActive = { [weak self] in self?.isRecording ?? false }
         recorder.onLevel = { [weak self] level in
             self?.overlay.update(level: level)
         }
@@ -139,6 +141,18 @@ final class AppState: ObservableObject {
         } else {
             status = .needsInputMonitoring
         }
+    }
+
+    /// Discards the current recording without transcribing (Esc).
+    func cancelRecording() {
+        guard recorder.isRecording else { return }
+        overlay.hide()
+        if let url = try? recorder.stopRecording() {
+            try? FileManager.default.removeItem(at: url)
+        }
+        status = .idle
+        NSSound(named: "Bottle")?.play()
+        DebugLog.log("recording cancelled by user")
     }
 
     func toggle() {

@@ -39,6 +39,11 @@ struct MenuBarContentView: View {
         Button(state.isRecording ? "Parar gravação" : "Gravar") {
             state.toggle()
         }
+        if state.isRecording {
+            Button("Cancelar (Esc)") {
+                state.cancelRecording()
+            }
+        }
 
         Divider()
         Button("Configurações…") {
