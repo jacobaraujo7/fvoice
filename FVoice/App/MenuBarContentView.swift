@@ -16,9 +16,6 @@ struct MenuBarContentView: View {
             Text("Gravando… \(state.store.settings.keyChord.display) para parar")
         case .transcribing:
             Text("Transcrevendo…")
-        case .result(let text):
-            Text(text.count > 60 ? String(text.prefix(60)) + "…" : text)
-            Text("(copiado para o clipboard)")
         case .error(let message):
             Text("Erro: \(message)")
         case .needsMicrophone:

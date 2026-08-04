@@ -128,6 +128,11 @@ private struct RecordingSettingsTab: View {
                     }
                     .padding(.vertical, 4)
                 }
+                SettingsRow(icon: "doc.on.clipboard", color: .indigo, title: "Copiar para o clipboard") {
+                    Toggle("", isOn: state.binding(\.copyToClipboard))
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
                 SettingsRow(icon: "return", color: .teal, title: "Enter automático") {
                     Toggle("", isOn: state.binding(\.autoEnter))
                         .toggleStyle(.switch)

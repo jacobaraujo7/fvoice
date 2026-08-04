@@ -2,13 +2,11 @@ import Foundation
 
 enum InsertMode: String, Codable, CaseIterable, Identifiable {
     case typing
-    case paste
     case hook
     var id: String { rawValue }
     var label: String {
         switch self {
         case .typing: return "Digitação (recomendado)"
-        case .paste: return "Colar (⌘V sintético)"
         case .hook: return "Hook (rodar script)"
         }
     }
@@ -74,6 +72,8 @@ struct AppSettings: Codable, Equatable {
     /// the press no longer controls media playback.
     var mediaKeyToggle: Bool = false
     var engine: EngineChoice = .whisper
+    /// Also copy every transcription to the clipboard.
+    var copyToClipboard: Bool = false
     /// Shell script run by the hook insert mode. {{text}} is replaced by the
     /// transcription (also available as $FVOICE_TEXT).
     var hookScript: String = "echo \"{{text}}\" >> ~/fvoice-hook.log"
@@ -81,7 +81,7 @@ struct AppSettings: Codable, Equatable {
     init() {}
 
     private enum CodingKeys: String, CodingKey {
-        case language, insertMode, autoEnter, keyChord, launchAtLogin, mediaKeyToggle, engine, hookScript
+        case language, insertMode, autoEnter, keyChord, launchAtLogin, mediaKeyToggle, engine, hookScript, copyToClipboard
         case legacyHotkey = "hotkey"
     }
 
@@ -90,13 +90,17 @@ struct AppSettings: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         language = try c.decodeIfPresent(String.self, forKey: .language) ?? "pt"
-        insertMode = try c.decodeIfPresent(InsertMode.self, forKey: .insertMode) ?? .typing
+        // Raw-string decode so removed modes (e.g. old "paste") fall back
+        // instead of failing the whole settings file.
+        let rawMode = try c.decodeIfPresent(String.self, forKey: .insertMode)
+        insertMode = rawMode.flatMap(InsertMode.init(rawValue:)) ?? .typing
         autoEnter = try c.decodeIfPresent(Bool.self, forKey: .autoEnter) ?? false
         launchAtLogin = try c.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         mediaKeyToggle = try c.decodeIfPresent(Bool.self, forKey: .mediaKeyToggle) ?? false
         engine = try c.decodeIfPresent(EngineChoice.self, forKey: .engine) ?? .whisper
         hookScript = try c.decodeIfPresent(String.self, forKey: .hookScript)
             ?? "echo \"{{text}}\" >> ~/fvoice-hook.log"
+        copyToClipboard = try c.decodeIfPresent(Bool.self, forKey: .copyToClipboard) ?? false
         if let chord = try c.decodeIfPresent(KeyChord.self, forKey: .keyChord) {
             keyChord = chord
         } else {
@@ -119,5 +123,6 @@ struct AppSettings: Codable, Equatable {
         try c.encode(mediaKeyToggle, forKey: .mediaKeyToggle)
         try c.encode(engine, forKey: .engine)
         try c.encode(hookScript, forKey: .hookScript)
+        try c.encode(copyToClipboard, forKey: .copyToClipboard)
     }
 }

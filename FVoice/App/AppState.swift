@@ -10,7 +10,6 @@ final class AppState: ObservableObject {
         case idle
         case recording
         case transcribing
-        case result(String)
         case needsInputMonitoring
         case needsMicrophone
         case error(String)
@@ -41,7 +40,6 @@ final class AppState: ObservableObject {
     }
     private var activeEngineChoice: EngineChoice = .whisper
     private let typingInserter: TextInserter = TypingTextInserter()
-    private let pasteInserter: TextInserter = PasteTextInserter()
     private lazy var hookInserter: TextInserter = HookTextInserter { [weak self] in
         self?.store.settings.hookScript ?? ""
     }
@@ -55,11 +53,7 @@ final class AppState: ObservableObject {
     private var autoStopTimer: Timer?
 
     private var inserter: TextInserter {
-        switch store.settings.insertMode {
-        case .typing: return typingInserter
-        case .paste: return pasteInserter
-        case .hook: return hookInserter
-        }
+        store.settings.insertMode == .hook ? hookInserter : typingInserter
     }
 
     init() {
@@ -237,17 +231,20 @@ final class AppState: ObservableObject {
                 let raw = try await engine.transcribe(wavURL: trimmed, language: store.settings.language)
                 if trimmed != url { try? FileManager.default.removeItem(at: trimmed) }
                 if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
+                    if store.settings.copyToClipboard {
+                        let pasteboard = NSPasteboard.general
+                        pasteboard.clearContents()
+                        pasteboard.setString(text, forType: .string)
+                    }
                     inserter.insert(text)
                     if store.settings.autoEnter, store.settings.insertMode != .hook {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                             KeyPress.pressReturn()
                         }
                     }
-                    status = .result(text)
                     NSSound(named: "Glass")?.play()
-                } else {
-                    status = .idle
                 }
+                status = .idle
             } catch {
                 status = .error("Transcrição falhou: \(error.localizedDescription)")
                 DebugLog.log("transcribe failed: \(error)")
