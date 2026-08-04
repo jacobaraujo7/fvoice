@@ -48,6 +48,7 @@ final class AppState: ObservableObject {
     private let overlay = RecordingOverlay()
     private var engineReady = false
     private var settingsObserver: AnyCancellable?
+    private var settingsForwarder: AnyCancellable?
 
     /// Safety net: stop and transcribe if a recording is left running.
     private static let maxRecordingSeconds: TimeInterval = 120
@@ -62,6 +63,10 @@ final class AppState: ObservableObject {
     }
 
     init() {
+        // Re-publish SettingsStore changes so views observing AppState refresh.
+        settingsForwarder = store.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
         hotkey.keyChord = store.settings.keyChord
         hotkey.mediaKeyEnabled = store.settings.mediaKeyToggle
         mediaRemote.onActivation = { [weak self] in self?.toggle() }
