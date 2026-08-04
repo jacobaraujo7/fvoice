@@ -122,7 +122,7 @@ private struct RecordingSettingsTab: View {
                             .scrollContentBackground(.hidden)
                             .padding(6)
                             .background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 6))
-                        Text("Use {{texto}} onde a transcrição deve entrar (também disponível como $FVOICE_TEXT). Roda em zsh, no lugar de digitar/colar.")
+                        Text("Use {{text}} onde a transcrição deve entrar (também disponível como $FVOICE_TEXT). Roda em zsh, no lugar de digitar/colar.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Runs a user-provided shell script instead of inserting text. The
-/// transcription is exported as $FVOICE_TEXT and {{texto}} occurrences in the
+/// transcription is exported as $FVOICE_TEXT and {{text}} occurrences in the
 /// script are replaced by "$FVOICE_TEXT" (safe against quoting/injection).
 final class HookTextInserter: TextInserter {
     private let scriptProvider: () -> String
@@ -16,7 +16,9 @@ final class HookTextInserter: TextInserter {
             DebugLog.log("hook: empty script, nothing to run")
             return
         }
-        let script = template.replacingOccurrences(of: "{{texto}}", with: "\"$FVOICE_TEXT\"")
+        let script = template
+            .replacingOccurrences(of: "{{text}}", with: "\"$FVOICE_TEXT\"")
+            .replacingOccurrences(of: "{{texto}}", with: "\"$FVOICE_TEXT\"")  // legacy alias
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/zsh")

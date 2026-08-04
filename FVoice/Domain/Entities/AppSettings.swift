@@ -74,9 +74,9 @@ struct AppSettings: Codable, Equatable {
     /// the press no longer controls media playback.
     var mediaKeyToggle: Bool = false
     var engine: EngineChoice = .whisper
-    /// Shell script run by the hook insert mode. {{texto}} is replaced by the
+    /// Shell script run by the hook insert mode. {{text}} is replaced by the
     /// transcription (also available as $FVOICE_TEXT).
-    var hookScript: String = "echo \"{{texto}}\" >> ~/fvoice-hook.log"
+    var hookScript: String = "echo \"{{text}}\" >> ~/fvoice-hook.log"
 
     init() {}
 
@@ -96,7 +96,7 @@ struct AppSettings: Codable, Equatable {
         mediaKeyToggle = try c.decodeIfPresent(Bool.self, forKey: .mediaKeyToggle) ?? false
         engine = try c.decodeIfPresent(EngineChoice.self, forKey: .engine) ?? .whisper
         hookScript = try c.decodeIfPresent(String.self, forKey: .hookScript)
-            ?? "echo \"{{texto}}\" >> ~/fvoice-hook.log"
+            ?? "echo \"{{text}}\" >> ~/fvoice-hook.log"
         if let chord = try c.decodeIfPresent(KeyChord.self, forKey: .keyChord) {
             keyChord = chord
         } else {
