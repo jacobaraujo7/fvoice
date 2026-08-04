@@ -55,7 +55,7 @@ final class AppState: ObservableObject {
     }
 
     init() {
-        hotkey.chord = store.settings.hotkey
+        hotkey.keyChord = store.settings.keyChord
         hotkey.mediaKeyEnabled = store.settings.mediaKeyToggle
         mediaRemote.onActivation = { [weak self] in self?.toggle() }
         if store.settings.mediaKeyToggle { mediaRemote.enable() }
@@ -71,10 +71,9 @@ final class AppState: ObservableObject {
                     self.status = .warming
                     self.prepareEngine()
                 }
-                if self.hotkey.chord != settings.hotkey {
-                    self.hotkey.chord = settings.hotkey
-                    self.hotkey.stop()
-                    self.hotkey.start()
+                if self.hotkey.keyChord != settings.keyChord {
+                    self.hotkey.keyChord = settings.keyChord
+                    DebugLog.log("hotkey changed to \(settings.keyChord.display)")
                 }
             }
         hotkey.onActivation = { [weak self] in self?.toggle() }
@@ -152,6 +151,11 @@ final class AppState: ObservableObject {
         default:
             status = .needsMicrophone
         }
+    }
+
+    /// Pauses the global hotkey while the Settings recorder captures keys.
+    func suspendHotkey(_ suspended: Bool) {
+        hotkey.suspended = suspended
     }
 
     func retryHotkey() {
@@ -237,6 +241,14 @@ final class AppState: ObservableObject {
                 DebugLog.log("transcribe failed: \(error)")
             }
         }
+    }
+
+    /// SwiftUI binding into a settings field.
+    func binding<T>(_ keyPath: WritableKeyPath<AppSettings, T>) -> Binding<T> {
+        Binding(
+            get: { self.store.settings[keyPath: keyPath] },
+            set: { self.store.settings[keyPath: keyPath] = $0 }
+        )
     }
 
     func openMicrophoneSettings() {

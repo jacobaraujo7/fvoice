@@ -15,8 +15,11 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
     var onCancel: (() -> Void)?
     var escapeActive: (() -> Bool) = { false }
 
-    /// Which modifier set (with Space) triggers activation. Restart to apply.
-    var chord: HotkeyChord = .optionSpace
+    /// The chord that triggers activation. Takes effect immediately.
+    var keyChord: KeyChord = .optionSpace
+    /// Set while the Settings shortcut recorder is capturing, so pressing the
+    /// current hotkey there doesn't start a recording.
+    var suspended = false
     /// When true, media Play/Pause (AirPods stem press) also toggles and is
     /// consumed so it stops controlling playback. Takes effect immediately.
     var mediaKeyEnabled = false
@@ -29,11 +32,12 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
     private var runLoopSource: CFRunLoopSource?
 
     private var requiredFlags: CGEventFlags {
-        switch chord {
-        case .optionSpace: return [.maskAlternate]
-        case .controlOptionSpace: return [.maskControl, .maskAlternate]
-        case .commandShiftSpace: return [.maskCommand, .maskShift]
-        }
+        var flags: CGEventFlags = []
+        if keyChord.command { flags.insert(.maskCommand) }
+        if keyChord.option { flags.insert(.maskAlternate) }
+        if keyChord.control { flags.insert(.maskControl) }
+        if keyChord.shift { flags.insert(.maskShift) }
+        return flags
     }
 
     @discardableResult
@@ -70,7 +74,7 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
             DebugLog.log("CGEvent.tapCreate FAILED (active tap needs Accessibility)")
             return false
         }
-        DebugLog.log("event tap created OK (Opt+Space)")
+        DebugLog.log("event tap created OK (\(keyChord.display))")
 
         self.tap = tap
         let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
@@ -111,7 +115,8 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
         }
 
         guard type == .keyDown,
-              event.getIntegerValueField(.keyboardEventKeycode) == Self.keyCodeSpace,
+              !suspended,
+              event.getIntegerValueField(.keyboardEventKeycode) == Int64(keyChord.keyCode),
               modifiers == requiredFlags
         else { return false }
 
