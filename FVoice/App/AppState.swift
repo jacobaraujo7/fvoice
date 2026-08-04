@@ -42,6 +42,9 @@ final class AppState: ObservableObject {
     private var activeEngineChoice: EngineChoice = .whisper
     private let typingInserter: TextInserter = TypingTextInserter()
     private let pasteInserter: TextInserter = PasteTextInserter()
+    private lazy var hookInserter: TextInserter = HookTextInserter { [weak self] in
+        self?.store.settings.hookScript ?? ""
+    }
     private let overlay = RecordingOverlay()
     private var engineReady = false
     private var settingsObserver: AnyCancellable?
@@ -51,7 +54,11 @@ final class AppState: ObservableObject {
     private var autoStopTimer: Timer?
 
     private var inserter: TextInserter {
-        store.settings.insertMode == .paste ? pasteInserter : typingInserter
+        switch store.settings.insertMode {
+        case .typing: return typingInserter
+        case .paste: return pasteInserter
+        case .hook: return hookInserter
+        }
     }
 
     init() {
@@ -226,7 +233,7 @@ final class AppState: ObservableObject {
                 if trimmed != url { try? FileManager.default.removeItem(at: trimmed) }
                 if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
                     inserter.insert(text)
-                    if store.settings.autoEnter {
+                    if store.settings.autoEnter, store.settings.insertMode != .hook {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                             KeyPress.pressReturn()
                         }

@@ -3,11 +3,13 @@ import Foundation
 enum InsertMode: String, Codable, CaseIterable, Identifiable {
     case typing
     case paste
+    case hook
     var id: String { rawValue }
     var label: String {
         switch self {
         case .typing: return "Digitação (recomendado)"
         case .paste: return "Colar (⌘V sintético)"
+        case .hook: return "Hook (rodar script)"
         }
     }
 }
@@ -72,11 +74,14 @@ struct AppSettings: Codable, Equatable {
     /// the press no longer controls media playback.
     var mediaKeyToggle: Bool = false
     var engine: EngineChoice = .whisper
+    /// Shell script run by the hook insert mode. {{texto}} is replaced by the
+    /// transcription (also available as $FVOICE_TEXT).
+    var hookScript: String = "echo \"{{texto}}\" >> ~/fvoice-hook.log"
 
     init() {}
 
     private enum CodingKeys: String, CodingKey {
-        case language, insertMode, autoEnter, keyChord, launchAtLogin, mediaKeyToggle, engine
+        case language, insertMode, autoEnter, keyChord, launchAtLogin, mediaKeyToggle, engine, hookScript
         case legacyHotkey = "hotkey"
     }
 
@@ -90,6 +95,8 @@ struct AppSettings: Codable, Equatable {
         launchAtLogin = try c.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         mediaKeyToggle = try c.decodeIfPresent(Bool.self, forKey: .mediaKeyToggle) ?? false
         engine = try c.decodeIfPresent(EngineChoice.self, forKey: .engine) ?? .whisper
+        hookScript = try c.decodeIfPresent(String.self, forKey: .hookScript)
+            ?? "echo \"{{texto}}\" >> ~/fvoice-hook.log"
         if let chord = try c.decodeIfPresent(KeyChord.self, forKey: .keyChord) {
             keyChord = chord
         } else {
@@ -111,5 +118,6 @@ struct AppSettings: Codable, Equatable {
         try c.encode(launchAtLogin, forKey: .launchAtLogin)
         try c.encode(mediaKeyToggle, forKey: .mediaKeyToggle)
         try c.encode(engine, forKey: .engine)
+        try c.encode(hookScript, forKey: .hookScript)
     }
 }

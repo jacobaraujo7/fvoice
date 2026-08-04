@@ -113,6 +113,21 @@ private struct RecordingSettingsTab: View {
                     }
                     .labelsHidden()
                 }
+                if state.store.settings.insertMode == .hook {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Script do hook")
+                        TextEditor(text: state.binding(\.hookScript))
+                            .font(.system(.caption, design: .monospaced))
+                            .frame(height: 90)
+                            .scrollContentBackground(.hidden)
+                            .padding(6)
+                            .background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 6))
+                        Text("Use {{texto}} onde a transcrição deve entrar (também disponível como $FVOICE_TEXT). Roda em zsh, no lugar de digitar/colar.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
                 SettingsRow(icon: "return", color: .teal, title: "Enter automático") {
                     Toggle("", isOn: state.binding(\.autoEnter))
                         .toggleStyle(.switch)
