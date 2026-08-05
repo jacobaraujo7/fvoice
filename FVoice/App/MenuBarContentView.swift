@@ -69,7 +69,6 @@ struct MenuBarContentView: View {
             NSApp.activate(ignoringOtherApps: true)
             openSettings()
         }
-        .keyboardShortcut(",")
         Button("Check for Updates…") {
             NSApp.activate(ignoringOtherApps: true)
             updater.checkForUpdates()
@@ -77,6 +76,5 @@ struct MenuBarContentView: View {
         Button("Quit") {
             NSApplication.shared.terminate(nil)
         }
-        .keyboardShortcut("q")
     }
 }
