@@ -21,9 +21,16 @@ final class MediaKeyRemote {
         active = true
 
         let center = MPRemoteCommandCenter.shared()
-        for command in [center.togglePlayPauseCommand, center.playCommand, center.pauseCommand] {
+        let commands: [(String, MPRemoteCommand)] = [
+            ("togglePlayPause", center.togglePlayPauseCommand),
+            ("play", center.playCommand),
+            ("pause", center.pauseCommand),
+            ("stop", center.stopCommand),
+        ]
+        for (name, command) in commands {
             command.isEnabled = true
             let target = command.addTarget { [weak self] _ in
+                DebugLog.log("media remote command: \(name)")
                 self?.fire()
                 return .success
             }
@@ -33,8 +40,15 @@ final class MediaKeyRemote {
         startSilentAudio()
 
         // macOS only treats us as the Now Playing app with explicit state.
+        // Without playbackRate/duration the system considers us paused and
+        // won't route remote commands.
         let info = MPNowPlayingInfoCenter.default()
-        info.nowPlayingInfo = [MPMediaItemPropertyTitle: "FVoice dictation"]
+        info.nowPlayingInfo = [
+            MPMediaItemPropertyTitle: "FVoice dictation",
+            MPMediaItemPropertyPlaybackDuration: 3600.0,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: 0.0,
+            MPNowPlayingInfoPropertyPlaybackRate: 1.0,
+        ]
         info.playbackState = .playing
         DebugLog.log("media remote enabled (now playing app, silent loop running)")
     }
