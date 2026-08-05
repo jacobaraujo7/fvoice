@@ -16,7 +16,7 @@
     <item>
       <title>Version 0.2.0</title>
       <pubDate>Wed, 05 Aug 2026 04:09:42 +0000</pubDate>
-      <sparkle:version>0.2.0</sparkle:version>
+      <sparkle:version>2</sparkle:version>
       <sparkle:shortVersionString>0.2.0</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
 <description><![CDATA[<h3>Changed</h3><ul><li>Permission prompts now appear only inside the Setup Assistant, each behind its own Allow button, instead of stacking dialogs at launch.</li><li>The Setup Assistant asks you to record your own shortcut from scratch, and the Input Monitoring permission moved next to it so the whole shortcut setup lives in one step.</li><li>Settings and Setup Assistant windows now stay in front of other apps instead of getting lost behind them.</li></ul><h3>Fixed</h3><ul><li>The recording shortcut and Esc now start working immediately after Input Monitoring is granted, no relaunch needed.</li><li>Permissions granted once now survive switching between debug, release and downloaded builds (unified code signing identity).</li><li>The app now registers itself reliably in the Input Monitoring pane of System Settings.</li></ul>]]></description>

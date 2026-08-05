@@ -13,6 +13,10 @@ APP="build/Build/Products/Release/FVoice.app"
 DMG="dist/FVoice-${VERSION}-macos.dmg"
 
 echo "==> Generating project and building Release ${VERSION}"
+# Stamp the plist so CFBundleVersion (what Sparkle compares) always matches
+# the release version, regardless of what was committed.
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION}" \
+  -c "Set :CFBundleVersion ${VERSION}" FVoice/App/Info.plist
 xcodegen generate
 xcodebuild -scheme FVoice -configuration Release -derivedDataPath build \
   MARKETING_VERSION="${VERSION}" CURRENT_PROJECT_VERSION="${VERSION}" build | tail -2
