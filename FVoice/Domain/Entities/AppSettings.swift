@@ -103,12 +103,14 @@ struct AppSettings: Codable, Equatable {
     /// Shell script run by the hook insert mode. {{text}} is replaced by the
     /// transcription (also available as $FVOICE_TEXT).
     var hookScript: String = "echo \"{{text}}\" >> ~/fvoice-hook.log"
+    /// Set to true when the first-launch setup assistant finishes.
+    var hasCompletedOnboarding: Bool = false
 
     init() {}
 
     private enum CodingKeys: String, CodingKey {
         case language, insertMode, autoEnter, keyChord, launchAtLogin, engine, hookScript, copyToClipboard
-        case vocabulary, preferredMicUID, pushToTalk, whisperModel
+        case vocabulary, preferredMicUID, pushToTalk, whisperModel, hasCompletedOnboarding
         case legacyHotkey = "hotkey"
     }
 
@@ -132,6 +134,7 @@ struct AppSettings: Codable, Equatable {
         pushToTalk = try c.decodeIfPresent(Bool.self, forKey: .pushToTalk) ?? false
         let rawModel = try c.decodeIfPresent(String.self, forKey: .whisperModel)
         whisperModel = rawModel.flatMap(WhisperModel.init(rawValue:)) ?? .turbo
+        hasCompletedOnboarding = try c.decodeIfPresent(Bool.self, forKey: .hasCompletedOnboarding) ?? false
         if let chord = try c.decodeIfPresent(KeyChord.self, forKey: .keyChord) {
             keyChord = chord
         } else {
@@ -158,5 +161,6 @@ struct AppSettings: Codable, Equatable {
         try c.encode(preferredMicUID, forKey: .preferredMicUID)
         try c.encode(pushToTalk, forKey: .pushToTalk)
         try c.encode(whisperModel, forKey: .whisperModel)
+        try c.encode(hasCompletedOnboarding, forKey: .hasCompletedOnboarding)
     }
 }
