@@ -32,7 +32,8 @@ final class AppState: ObservableObject {
     private let hotkey = GlobalHotkeyMonitor()
     private let mediaRemote = MediaKeyRemote()
     private let recorder: AudioCaptureService = MicRecorder()
-    private let whisperEngine: TranscriptionEngine = WhisperKitEngine()
+    private let whisperKit = WhisperKitEngine()
+    private var whisperEngine: TranscriptionEngine { whisperKit }
     private let appleEngine: TranscriptionEngine? = {
         if #available(macOS 26.0, *) { return AppleSpeechEngine() }
         return nil
@@ -41,6 +42,7 @@ final class AppState: ObservableObject {
         store.settings.engine == .apple ? (appleEngine ?? whisperEngine) : whisperEngine
     }
     private var activeEngineChoice: EngineChoice = .whisper
+    private var activeWhisperModel: WhisperModel = .turbo
     private let typingInserter: TextInserter = TypingTextInserter()
     private lazy var hookInserter: TextInserter = HookTextInserter { [weak self] in
         self?.store.settings.hookScript ?? ""
@@ -74,8 +76,17 @@ final class AppState: ObservableObject {
                 self.hotkey.mediaKeyEnabled = settings.mediaKeyToggle
                 self.hotkey.pushToTalk = settings.pushToTalk
                 settings.mediaKeyToggle ? self.mediaRemote.enable() : self.mediaRemote.disable()
+                var reloadNeeded = false
                 if settings.engine != self.activeEngineChoice {
                     self.activeEngineChoice = settings.engine
+                    reloadNeeded = true
+                }
+                if settings.whisperModel != self.activeWhisperModel {
+                    self.activeWhisperModel = settings.whisperModel
+                    self.whisperKit.modelVariant = settings.whisperModel.variant
+                    reloadNeeded = settings.engine == .whisper
+                }
+                if reloadNeeded {
                     self.engineReady = false
                     self.status = .warming
                     self.prepareEngine()
@@ -115,6 +126,8 @@ final class AppState: ObservableObject {
         requestMicrophoneIfNeeded()
         requestAccessibilityIfNeeded()
         activeEngineChoice = store.settings.engine
+        activeWhisperModel = store.settings.whisperModel
+        whisperKit.modelVariant = store.settings.whisperModel.variant
         prepareEngine()
         updateAnimTimer()
     }

@@ -56,8 +56,30 @@ enum EngineChoice: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .whisper: return "Whisper (large-v3 turbo)"
-        case .apple: return "Apple SpeechTranscriber"
+        case .whisper: return "Whisper · on-device model"
+        case .apple: return "Apple SpeechTranscriber · minimal RAM (system managed)"
+        }
+    }
+}
+
+enum WhisperModel: String, Codable, CaseIterable, Identifiable {
+    case turbo
+    case small
+    case base
+    var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .turbo: return "Large-v3 turbo · best accuracy · ~2 GB RAM"
+        case .small: return "Small · ~600 MB RAM"
+        case .base: return "Base · fastest · ~250 MB RAM"
+        }
+    }
+    /// WhisperKit model variant name (always multilingual, never .en).
+    var variant: String {
+        switch self {
+        case .turbo: return "openai_whisper-large-v3-v20240930_turbo"
+        case .small: return "openai_whisper-small"
+        case .base: return "openai_whisper-base"
         }
     }
 }
@@ -72,6 +94,7 @@ struct AppSettings: Codable, Equatable {
     /// the press no longer controls media playback.
     var mediaKeyToggle: Bool = false
     var engine: EngineChoice = .whisper
+    var whisperModel: WhisperModel = .turbo
     /// Also copy every transcription to the clipboard.
     var copyToClipboard: Bool = false
     /// Comma-separated jargon fed to Whisper as an initial prompt.
@@ -88,7 +111,7 @@ struct AppSettings: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case language, insertMode, autoEnter, keyChord, launchAtLogin, mediaKeyToggle, engine, hookScript, copyToClipboard
-        case vocabulary, preferredMicUID, pushToTalk
+        case vocabulary, preferredMicUID, pushToTalk, whisperModel
         case legacyHotkey = "hotkey"
     }
 
@@ -111,6 +134,8 @@ struct AppSettings: Codable, Equatable {
         vocabulary = try c.decodeIfPresent(String.self, forKey: .vocabulary) ?? ""
         preferredMicUID = try c.decodeIfPresent(String.self, forKey: .preferredMicUID) ?? ""
         pushToTalk = try c.decodeIfPresent(Bool.self, forKey: .pushToTalk) ?? false
+        let rawModel = try c.decodeIfPresent(String.self, forKey: .whisperModel)
+        whisperModel = rawModel.flatMap(WhisperModel.init(rawValue:)) ?? .turbo
         if let chord = try c.decodeIfPresent(KeyChord.self, forKey: .keyChord) {
             keyChord = chord
         } else {
@@ -137,5 +162,6 @@ struct AppSettings: Codable, Equatable {
         try c.encode(vocabulary, forKey: .vocabulary)
         try c.encode(preferredMicUID, forKey: .preferredMicUID)
         try c.encode(pushToTalk, forKey: .pushToTalk)
+        try c.encode(whisperModel, forKey: .whisperModel)
     }
 }

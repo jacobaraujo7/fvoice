@@ -58,6 +58,20 @@ private struct GeneralSettingsTab: View {
                     }
                 }
 
+                if state.store.settings.engine == .whisper {
+                    SettingsRow(icon: "memorychip", color: .brown, title: "Whisper model") {
+                        Picker("", selection: state.binding(\.whisperModel)) {
+                            ForEach(WhisperModel.allCases) { model in
+                                Text(model.label).tag(model)
+                            }
+                        }
+                        .labelsHidden()
+                    }
+                    Text("RAM stays in use while FVoice runs. Smaller models respond faster but miss more jargon.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
                 SettingsRow(icon: "globe", color: .blue, title: "Language") {
                     Picker("", selection: state.binding(\.language)) {
                         Text("Portuguese").tag("pt")

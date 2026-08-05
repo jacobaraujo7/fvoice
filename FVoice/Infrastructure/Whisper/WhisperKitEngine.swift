@@ -8,21 +8,28 @@ enum WhisperKitEngineError: Error {
 /// WhisperKit adapter. Downloads the model to ~/.fvoice/models and keeps it
 /// loaded in memory. Language is always explicit (pt by default), never auto.
 final class WhisperKitEngine: TranscriptionEngine {
-    private static let variant = "openai_whisper-large-v3-v20240930_turbo"
+    /// WhisperKit variant to load; set before prepare(). Changing it and
+    /// calling prepare() again swaps the model.
+    var modelVariant = "openai_whisper-large-v3-v20240930_turbo"
+
     private var whisper: WhisperKit?
+    private var loadedVariant: String?
     private var preparing = false
 
     func prepare(onProgress: @escaping (Double) -> Void) async throws {
-        guard whisper == nil, !preparing else { return }
+        guard loadedVariant != modelVariant || whisper == nil else { return }
+        guard !preparing else { return }
         preparing = true
         defer { preparing = false }
+        whisper = nil
 
         let base = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".fvoice/models", isDirectory: true)
 
-        DebugLog.log("model download/check started (\(Self.variant))")
+        let variant = modelVariant
+        DebugLog.log("model download/check started (\(variant))")
         let folder = try await WhisperKit.download(
-            variant: Self.variant,
+            variant: variant,
             downloadBase: base,
             useBackgroundSession: false
         ) { progress in
@@ -32,7 +39,8 @@ final class WhisperKitEngine: TranscriptionEngine {
         DebugLog.log("model on disk at \(folder.path), loading…")
         let config = WhisperKitConfig(modelFolder: folder.path, load: true)
         whisper = try await WhisperKit(config)
-        DebugLog.log("model loaded")
+        loadedVariant = variant
+        DebugLog.log("model loaded (\(variant))")
     }
 
     func transcribe(wavURL: URL, language: String, vocabulary: String) async throws -> String {
