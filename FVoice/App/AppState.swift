@@ -164,7 +164,8 @@ final class AppState: ObservableObject {
     }
 
     /// Onboarding: registers the app in the Input Monitoring pane (and shows
-    /// the system prompt when possible), then opens the pane.
+    /// the system prompt when possible), then opens the pane. Attempting the
+    /// event tap is what reliably makes the app show up in the list.
     func requestInputMonitoringAccess() {
         hotkey.requestAccess()
         openInputMonitoringSettings()

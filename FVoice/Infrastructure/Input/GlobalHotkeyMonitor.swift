@@ -80,9 +80,24 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
     }
 
     /// Registers the app in the Input Monitoring pane and triggers the system
-    /// prompt. Called from the onboarding Allow button.
+    /// prompt. Called from the onboarding Allow button. Actually attempting a
+    /// tap is what reliably adds the app to the pane's list, so we try one
+    /// (and discard it) besides the IOHID request.
     func requestAccess() {
         IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
+        let mask = CGEventMask(1 << CGEventType.keyDown.rawValue)
+        let probe = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .listenOnly,
+            eventsOfInterest: mask,
+            callback: { _, _, event, _ in Unmanaged.passUnretained(event) },
+            userInfo: nil
+        )
+        if let probe {
+            CGEvent.tapEnable(tap: probe, enable: false)
+        }
+        DebugLog.log("input monitoring probe tap: \(probe == nil ? "denied (registered in pane)" : "created")")
     }
 
     func stop() {
