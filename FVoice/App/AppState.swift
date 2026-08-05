@@ -200,9 +200,7 @@ final class AppState: ObservableObject {
         autoStopTimer?.invalidate()
         autoStopTimer = nil
         overlay.hide()
-        if let url = try? recorder.stopRecording() {
-            try? FileManager.default.removeItem(at: url)
-        }
+        _ = try? recorder.stopRecording()
         status = .idle
         NSSound(named: "Bottle")?.play()
         DebugLog.log("recording cancelled by user")
@@ -214,13 +212,13 @@ final class AppState: ObservableObject {
             autoStopTimer = nil
             overlay.hide()
             do {
-                let url = try recorder.stopRecording()
+                let samples = try recorder.stopRecording()
                 NSSound(named: "Pop")?.play()
                 if recorder.lastSpeechSeconds < TranscriptionFilter.minimumSpeechSeconds {
                     DebugLog.log("skipped transcription — only \(String(format: "%.2f", recorder.lastSpeechSeconds))s of speech")
                     status = .idle
                 } else {
-                    transcribe(url: url)
+                    transcribe(samples: samples)
                 }
             } catch {
                 status = .error("\(error)")
@@ -249,17 +247,16 @@ final class AppState: ObservableObject {
         }
     }
 
-    private func transcribe(url: URL) {
+    private func transcribe(samples: [Float]) {
         status = .transcribing
         Task {
             do {
-                let trimmed = SilenceTrimmer.trim(url)
+                let trimmed = SilenceTrimmer.trim(samples, sampleRate: MicRecorder.sampleRate)
                 let raw = try await engine.transcribe(
-                    wavURL: trimmed,
+                    samples: trimmed,
                     language: store.settings.language,
                     vocabulary: store.settings.vocabulary
                 )
-                if trimmed != url { try? FileManager.default.removeItem(at: trimmed) }
                 if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
                     history.insert(text, at: 0)
                     if history.count > 10 { history.removeLast() }

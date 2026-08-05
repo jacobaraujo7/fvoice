@@ -11,6 +11,6 @@ protocol AudioCaptureService: AnyObject {
     /// Input device UID to capture from; nil/empty uses the system default.
     var preferredDeviceUID: String? { get set }
     func startRecording() throws
-    /// Stops capture and returns the URL of the recorded 16kHz mono wav.
-    func stopRecording() throws -> URL
+    /// Stops capture and returns the recorded 16kHz mono Float32 samples.
+    func stopRecording() throws -> [Float]
 }

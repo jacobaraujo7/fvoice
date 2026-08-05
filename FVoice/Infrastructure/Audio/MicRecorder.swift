@@ -8,13 +8,13 @@ enum MicRecorderError: Error {
     case converterUnavailable
 }
 
-/// Captures the default input via AVAudioEngine, resamples to 16kHz mono
-/// Float32 and writes a wav file for debugging/transcription.
+/// Captures the default input via AVAudioEngine and resamples to 16kHz mono
+/// Float32, accumulating samples in memory (no intermediate file).
 final class MicRecorder: AudioCaptureService {
     private let engine = AVAudioEngine()
     private var converter: AVAudioConverter?
-    private var file: AVAudioFile?
-    private var fileURL: URL?
+    private var samples: [Float] = []
+    private let samplesLock = NSLock()
 
     private(set) var isRecording = false
     /// Seconds of buffers whose RMS crossed the voice threshold (cheap VAD).
@@ -30,9 +30,11 @@ final class MicRecorder: AudioCaptureService {
     private var configObserver: NSObjectProtocol?
     private static let voiceRMSThreshold: Float = 0.015
 
+    static let sampleRate: Double = 16_000
+
     private static let targetFormat = AVAudioFormat(
         commonFormat: .pcmFormatFloat32,
-        sampleRate: 16_000,
+        sampleRate: sampleRate,
         channels: 1,
         interleaved: false
     )!
@@ -54,25 +56,9 @@ final class MicRecorder: AudioCaptureService {
         }
         self.converter = converter
 
-        let dir = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".fvoice/debug", isDirectory: true)
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd-HHmmss"
-        let url = dir.appendingPathComponent("rec-\(formatter.string(from: Date())).wav")
-
-        var settings = Self.targetFormat.settings
-        settings[AVLinearPCMIsFloatKey] = false
-        settings[AVLinearPCMBitDepthKey] = 16
-        file = try AVAudioFile(forWriting: url, settings: settings,
-                               commonFormat: .pcmFormatFloat32, interleaved: false)
-        fileURL = url
-
-        input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
-            self?.append(buffer: buffer)
-        }
-
+        samplesLock.lock()
+        samples.removeAll(keepingCapacity: true)
+        samplesLock.unlock()
         speechFrames = 0
         lastSpeechSeconds = 0
         configObserver = NotificationCenter.default.addObserver(
@@ -86,13 +72,17 @@ final class MicRecorder: AudioCaptureService {
             self.onInterrupted?()
         }
 
+        input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
+            self?.append(buffer: buffer)
+        }
+
         engine.prepare()
         try engine.start()
         isRecording = true
     }
 
-    func stopRecording() throws -> URL {
-        guard isRecording, let url = fileURL else { throw MicRecorderError.notRecording }
+    func stopRecording() throws -> [Float] {
+        guard isRecording else { throw MicRecorderError.notRecording }
         if let configObserver {
             NotificationCenter.default.removeObserver(configObserver)
             self.configObserver = nil
@@ -101,11 +91,14 @@ final class MicRecorder: AudioCaptureService {
         engine.stop()
         engine.reset()
         isRecording = false
-        lastSpeechSeconds = Double(speechFrames) / Self.targetFormat.sampleRate
-        file = nil
         converter = nil
-        fileURL = nil
-        return url
+        lastSpeechSeconds = Double(speechFrames) / Self.sampleRate
+
+        samplesLock.lock()
+        let recorded = samples
+        samples = []
+        samplesLock.unlock()
+        return recorded
     }
 
     private func applyPreferredDevice(to input: AVAudioInputNode) {
@@ -121,7 +114,7 @@ final class MicRecorder: AudioCaptureService {
     }
 
     private func append(buffer: AVAudioPCMBuffer) {
-        guard let converter, let file else { return }
+        guard let converter else { return }
 
         let ratio = Self.targetFormat.sampleRate / buffer.format.sampleRate
         let capacity = AVAudioFrameCount(Double(buffer.frameLength) * ratio) + 64
@@ -138,23 +131,25 @@ final class MicRecorder: AudioCaptureService {
             return buffer
         }
 
-        if out.frameLength > 0 {
-            try? file.write(from: out)
-            if let data = out.floatChannelData?[0] {
-                var sum: Float = 0
-                for i in 0..<Int(out.frameLength) {
-                    sum += data[i] * data[i]
-                }
-                let rms = (sum / Float(out.frameLength)).squareRoot()
-                if rms > Self.voiceRMSThreshold {
-                    speechFrames += Int(out.frameLength)
-                }
-                if let onLevel {
-                    // Map typical speech RMS (~0.01–0.2) to 0...1.
-                    let level = min(1, rms * 8)
-                    DispatchQueue.main.async { onLevel(level) }
-                }
-            }
+        let frames = Int(out.frameLength)
+        guard frames > 0, let data = out.floatChannelData?[0] else { return }
+
+        samplesLock.lock()
+        samples.append(contentsOf: UnsafeBufferPointer(start: data, count: frames))
+        samplesLock.unlock()
+
+        var sum: Float = 0
+        for i in 0..<frames {
+            sum += data[i] * data[i]
+        }
+        let rms = (sum / Float(frames)).squareRoot()
+        if rms > Self.voiceRMSThreshold {
+            speechFrames += frames
+        }
+        if let onLevel {
+            // Map typical speech RMS (~0.01–0.2) to 0...1.
+            let level = min(1, rms * 8)
+            DispatchQueue.main.async { onLevel(level) }
         }
     }
 }
