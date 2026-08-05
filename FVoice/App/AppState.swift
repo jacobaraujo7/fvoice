@@ -123,6 +123,7 @@ final class AppState: ObservableObject {
         if !hotkey.start() {
             status = .needsInputMonitoring
         }
+        registerInputMuteGesture()
         requestMicrophoneIfNeeded()
         requestAccessibilityIfNeeded()
         activeEngineChoice = store.settings.engine
@@ -145,6 +146,26 @@ final class AppState: ObservableObject {
         } else if !animating {
             animTimer?.invalidate()
             animTimer = nil
+        }
+    }
+
+    /// While the mic is live, AirPods switch to the call profile and the stem
+    /// press becomes an input-mute gesture instead of play/pause. Handle it as
+    /// "stop and transcribe".
+    private func registerInputMuteGesture() {
+        do {
+            try AVAudioApplication.shared.setInputMuteStateChangeHandler { [weak self] muted in
+                DebugLog.log("input mute gesture received (muted=\(muted))")
+                Task { @MainActor in
+                    guard let self else { return }
+                    if self.recorder.isRecording { self.toggle() }
+                    // Reset so the next stem press fires the handler again.
+                    try? AVAudioApplication.shared.setInputMuted(false)
+                }
+                return true
+            }
+        } catch {
+            DebugLog.log("input mute handler registration failed: \(error)")
         }
     }
 
