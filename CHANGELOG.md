@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 - 2026-08-05
+
+### Added
+- The app version is now shown in the Settings header.
+- Installation instructions in the README.
+
+### Changed
+- Removed the Cmd+Q and Cmd+Comma shortcuts from the menu bar items.
+
+### Fixed
+- Automatic updates now correctly detect and offer new versions.
+
 ## 0.2.0 - 2026-08-05
 
 ### Changed
