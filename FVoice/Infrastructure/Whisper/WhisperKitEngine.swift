@@ -49,20 +49,29 @@ final class WhisperKitEngine: TranscriptionEngine {
             task: .transcribe,
             language: language == "auto" ? nil : language
         )
-        // Initial prompt: the user's jargon plus the tail of the text already
-        // transcribed (streaming chunk context).
+        // Initial prompt: the user's jargon only. Injecting the streaming
+        // context here made the decoder return empty results, so chunks are
+        // decoded independently (context parameter intentionally unused).
+        _ = context
+        var usedPrompt = false
         let vocab = vocabulary.trimmingCharacters(in: .whitespacesAndNewlines)
-        let contextTail = String(context.suffix(200)).trimmingCharacters(in: .whitespacesAndNewlines)
-        let prompt = [vocab, contextTail].filter { !$0.isEmpty }.joined(separator: ". ")
-        if !prompt.isEmpty, let tokenizer = whisper.tokenizer {
-            let tokens = tokenizer.encode(text: " " + prompt)
+        if !vocab.isEmpty, let tokenizer = whisper.tokenizer {
+            let tokens = tokenizer.encode(text: " " + vocab)
                 .filter { $0 < tokenizer.specialTokens.specialTokenBegin }
             if !tokens.isEmpty {
                 options.promptTokens = tokens
                 options.usePrefillPrompt = true
+                usedPrompt = true
             }
         }
-        let results = try await whisper.transcribe(audioArray: samples, decodeOptions: options)
+        var results = try await whisper.transcribe(audioArray: samples, decodeOptions: options)
+        if usedPrompt, results.map(\.text).joined().trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            // Prompt occasionally makes the decoder emit nothing; retry clean.
+            DebugLog.log("empty result with prompt, retrying without it")
+            options.promptTokens = nil
+            options.usePrefillPrompt = false
+            results = try await whisper.transcribe(audioArray: samples, decodeOptions: options)
+        }
         let text = results.map(\.text).joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         DebugLog.log("transcription: \(text)")
