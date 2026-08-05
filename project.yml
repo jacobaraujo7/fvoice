@@ -29,3 +29,25 @@ targets:
         INFOPLIST_FILE: FVoice/App/Info.plist
         ENABLE_HARDENED_RUNTIME: false
         GENERATE_INFOPLIST_FILE: false
+  FVoiceTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: FVoiceTests
+    dependencies:
+      - target: FVoice
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobmoura.fvoice.tests
+        GENERATE_INFOPLIST_FILE: true
+schemes:
+  FVoice:
+    build:
+      targets:
+        FVoice: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - FVoiceTests
