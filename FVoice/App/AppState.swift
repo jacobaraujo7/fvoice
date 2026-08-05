@@ -155,11 +155,14 @@ final class AppState: ObservableObject {
     private func registerInputMuteGesture() {
         do {
             try AVAudioApplication.shared.setInputMuteStateChangeHandler { [weak self] muted in
-                DebugLog.log("input mute gesture received (muted=\(muted))")
+                // Only the mute gesture (true) is the stem press. The false
+                // events are our own unmute reset; acting on them loops.
+                guard muted else { return true }
+                DebugLog.log("input mute gesture received")
                 Task { @MainActor in
                     guard let self else { return }
                     if self.recorder.isRecording { self.toggle() }
-                    // Reset so the next stem press fires the handler again.
+                    // Unmute so the next stem press fires the handler again.
                     try? AVAudioApplication.shared.setInputMuted(false)
                 }
                 return true
