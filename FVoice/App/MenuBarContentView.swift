@@ -1,6 +1,8 @@
+import Sparkle
 import SwiftUI
 
 struct MenuBarContentView: View {
+    let updater: SPUUpdater
     @EnvironmentObject var state: AppState
     @Environment(\.openSettings) private var openSettings
     @Environment(\.openWindow) private var openWindow
@@ -60,6 +62,10 @@ struct MenuBarContentView: View {
             openSettings()
         }
         .keyboardShortcut(",")
+        Button("Check for Updates…") {
+            NSApp.activate(ignoringOtherApps: true)
+            updater.checkForUpdates()
+        }
         Button("Quit") {
             NSApplication.shared.terminate(nil)
         }

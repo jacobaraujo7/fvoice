@@ -1,14 +1,18 @@
 import AVFoundation
 import IOKit.hid
+import Sparkle
 import SwiftUI
 
 @main
 struct FVoiceApp: App {
     @StateObject private var state = AppState()
+    /// Sparkle auto-updater; feed and public key live in Info.plist.
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarContentView()
+            MenuBarContentView(updater: updaterController.updater)
                 .environmentObject(state)
         } label: {
             MenuBarLabel()

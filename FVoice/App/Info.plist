@@ -26,5 +26,11 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>FVoice needs the microphone to transcribe your speech locally.</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/jacobaraujo7/fvoice/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>58PdnyVsf19KlAnpQW1amx3KiZgKsoSPF8+hpCFhrhE=</string>
 </dict>
 </plist>
