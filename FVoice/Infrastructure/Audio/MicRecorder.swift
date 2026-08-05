@@ -25,6 +25,8 @@ final class MicRecorder: AudioCaptureService {
     var onLevel: ((Float) -> Void)?
     /// Input device UID to capture from; nil/empty uses the system default.
     var preferredDeviceUID: String?
+    /// Capture through the voice-processing unit (needed for the stem gesture).
+    var voiceProcessingEnabled = false
 
     private var speechFrames: Int = 0
     private var configObserver: NSObjectProtocol?
@@ -41,6 +43,14 @@ final class MicRecorder: AudioCaptureService {
         guard !isRecording else { throw MicRecorderError.alreadyRecording }
 
         let input = engine.inputNode
+        if input.isVoiceProcessingEnabled != voiceProcessingEnabled {
+            do {
+                try input.setVoiceProcessingEnabled(voiceProcessingEnabled)
+                DebugLog.log("voice processing set to \(voiceProcessingEnabled)")
+            } catch {
+                DebugLog.log("voice processing toggle failed: \(error)")
+            }
+        }
         applyPreferredDevice(to: input)
         let inputFormat = input.outputFormat(forBus: 0)
         guard inputFormat.sampleRate > 0 else { throw MicRecorderError.formatUnavailable }

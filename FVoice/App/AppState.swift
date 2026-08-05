@@ -263,6 +263,7 @@ final class AppState: ObservableObject {
                 // previous session); a muted input records pure silence.
                 try? AVAudioApplication.shared.setInputMuted(false)
                 recorder.preferredDeviceUID = store.settings.preferredMicUID
+                recorder.voiceProcessingEnabled = store.settings.mediaKeyToggle
                 try recorder.startRecording()
                 status = .recording
                 overlay.show()
