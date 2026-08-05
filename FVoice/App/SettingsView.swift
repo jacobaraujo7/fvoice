@@ -94,8 +94,9 @@ private struct GeneralSettingsTab: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Vocabulary hints")
-                    TextField("Comma-separated jargon, e.g. worktree, refactor, staging (Whisper only)",
-                              text: state.binding(\.vocabulary))
+                    TextField("", text: state.binding(\.vocabulary),
+                              prompt: Text("Comma-separated jargon, e.g. worktree, refactor, staging (Whisper only)"))
+                        .labelsHidden()
                         .textFieldStyle(.roundedBorder)
                 }
                 .padding(.vertical, 4)
