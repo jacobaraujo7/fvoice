@@ -7,6 +7,8 @@ struct SettingsView: View {
                 .tabItem { Label("General", systemImage: "gearshape") }
             RecordingSettingsTab()
                 .tabItem { Label("Recording", systemImage: "mic") }
+            HistoryTab()
+                .tabItem { Label("History", systemImage: "clock.arrow.circlepath") }
         }
         .frame(width: 580, height: 560)
         .onAppear {
@@ -205,6 +207,63 @@ private struct RecordingSettingsTab: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+private struct HistoryTab: View {
+    @EnvironmentObject var state: AppState
+    @State private var copiedIndex: Int?
+
+    var body: some View {
+        Group {
+            if state.history.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
+                    Text("No transcriptions yet")
+                        .foregroundStyle(.secondary)
+                    Text("Your last 10 dictations of this session appear here.")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                Form {
+                    Section {
+                        ForEach(Array(state.history.enumerated()), id: \.offset) { index, item in
+                            HStack(alignment: .top, spacing: 10) {
+                                Text(item)
+                                    .textSelection(.enabled)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Button {
+                                    let pasteboard = NSPasteboard.general
+                                    pasteboard.clearContents()
+                                    pasteboard.setString(item, forType: .string)
+                                    copiedIndex = index
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                                        if copiedIndex == index { copiedIndex = nil }
+                                    }
+                                } label: {
+                                    Image(systemName: copiedIndex == index ? "checkmark" : "doc.on.doc")
+                                }
+                                .buttonStyle(.borderless)
+                                .help("Copy")
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    } footer: {
+                        HStack {
+                            Spacer()
+                            Button("Clear history") {
+                                state.history.removeAll()
+                            }
+                        }
+                    }
+                }
+                .formStyle(.grouped)
+            }
+        }
     }
 }
 

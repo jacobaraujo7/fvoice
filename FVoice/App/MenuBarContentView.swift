@@ -48,18 +48,6 @@ struct MenuBarContentView: View {
             }
         }
 
-        if !state.history.isEmpty {
-            Menu("History") {
-                ForEach(Array(state.history.enumerated()), id: \.offset) { _, item in
-                    Button(item.count > 60 ? String(item.prefix(60)) + "…" : item) {
-                        let pasteboard = NSPasteboard.general
-                        pasteboard.clearContents()
-                        pasteboard.setString(item, forType: .string)
-                    }
-                }
-            }
-        }
-
         Divider()
         Button("Settings…") {
             // LSUIElement apps open windows behind everything unless activated.
