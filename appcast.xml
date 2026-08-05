@@ -5,5 +5,13 @@
     <description>Most recent updates to FVoice</description>
     <language>en</language>
     <!-- Release items are appended here by the release workflow. -->
+    <item>
+      <title>Version 0.1.0</title>
+      <pubDate>Wed, 05 Aug 2026 03:41:24 +0000</pubDate>
+      <sparkle:version>0.1.0</sparkle:version>
+      <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <enclosure url="https://github.com/jacobaraujo7/fvoice/releases/download/v0.1.0/FVoice-0.1.0-macos.dmg" sparkle:edSignature="z3IV41nozeqJnM+XiUJNmdxo0WZLQwMosfCyg554I0bx4UyyFHIqvcXuRF0+26wJT355ggr1pTy7SKvuReHhAA==" length="5699219" type="application/octet-stream"/>
+    </item>
   </channel>
 </rss>
