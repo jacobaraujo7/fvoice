@@ -57,16 +57,45 @@ jobs:
           rm sparkle_key
           echo "signature attrs: $SIGNATURE"
           python3 - "$VERSION" "$SIGNATURE" <<'EOF'
-          import sys, datetime, pathlib
+          import html, re, sys, datetime, pathlib
           version, sig_attrs = sys.argv[1], sys.argv[2]
           url = f"https://github.com/jacobaraujo7/fvoice/releases/download/v{version}/FVoice-{version}-macos.dmg"
           date = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+          # Sparkle's update dialog renders HTML, not markdown: extract this
+          # version's CHANGELOG section and convert the simple subset we use.
+          def changelog_html():
+              try:
+                  text = pathlib.Path("CHANGELOG.md").read_text()
+              except FileNotFoundError:
+                  return ""
+              match = re.search(rf"^## {re.escape(version)}[^\n]*\n(.*?)(?=^## |\Z)",
+                                text, re.M | re.S)
+              if not match:
+                  return ""
+              out, in_list = [], False
+              for line in match.group(1).splitlines():
+                  line = line.strip()
+                  if line.startswith("### "):
+                      if in_list: out.append("</ul>"); in_list = False
+                      out.append(f"<h3>{html.escape(line[4:])}</h3>")
+                  elif line.startswith("- "):
+                      if not in_list: out.append("<ul>"); in_list = True
+                      out.append(f"<li>{html.escape(line[2:])}</li>")
+                  elif line:
+                      if in_list: out.append("</ul>"); in_list = False
+                      out.append(f"<p>{html.escape(line)}</p>")
+              if in_list: out.append("</ul>")
+              return "".join(out)
+
+          notes = changelog_html()
+          description = f"\n        <description><![CDATA[{notes}]]></description>" if notes else ""
           item = f"""    <item>
                 <title>Version {version}</title>
                 <pubDate>{date}</pubDate>
                 <sparkle:version>{version}</sparkle:version>
                 <sparkle:shortVersionString>{version}</sparkle:shortVersionString>
-                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>{description}
                 <enclosure url="{url}" {sig_attrs} type="application/octet-stream"/>
               </item>
           """
