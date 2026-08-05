@@ -11,7 +11,6 @@ struct OnboardingView: View {
     @State private var micGranted = false
     @State private var inputMonitoringGranted = false
     @State private var accessibilityGranted = false
-    @State private var permissionsSkipped = false
 
     private let stepCount = 4
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -196,7 +195,7 @@ struct OnboardingView: View {
                     title: "Input Monitoring",
                     detail: "Needed for the global recording shortcut."
                 ) {
-                    Button("Open Settings") { state.openInputMonitoringSettings() }
+                    Button("Allow") { state.requestInputMonitoringAccess() }
                 }
                 if !inputMonitoringGranted {
                     HStack(spacing: 8) {
@@ -215,21 +214,7 @@ struct OnboardingView: View {
                 title: "Accessibility",
                 detail: "Needed to type the transcription at your cursor."
             ) {
-                Button("Open Settings") {
-                    let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-                    NSWorkspace.shared.open(url)
-                }
-            }
-
-            if !allPermissionsGranted {
-                Button("Set up later") {
-                    permissionsSkipped = true
-                    step += 1
-                }
-                .buttonStyle(.plain)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
+                Button("Allow") { state.requestAccessibilityAccess() }
             }
         }
     }

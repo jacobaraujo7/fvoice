@@ -127,8 +127,8 @@ final class AppState: ObservableObject {
         if !hotkey.start() {
             status = .needsInputMonitoring
         }
-        requestMicrophoneIfNeeded()
-        requestAccessibilityIfNeeded()
+        checkMicrophone()
+        checkAccessibility()
         activeEngineChoice = store.settings.engine
         activeWhisperModel = store.settings.whisperModel
         whisperKit.modelVariant = store.settings.whisperModel.variant
@@ -152,10 +152,22 @@ final class AppState: ObservableObject {
         }
     }
 
-    private func requestAccessibilityIfNeeded() {
+    /// Prompts live only in the onboarding buttons; at launch we just observe.
+    private func checkAccessibility() {
+        DebugLog.log("accessibility trusted = \(AXIsProcessTrusted())")
+    }
+
+    /// Onboarding: triggers the system Accessibility prompt.
+    func requestAccessibilityAccess() {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
-        let trusted = AXIsProcessTrustedWithOptions(options)
-        DebugLog.log("accessibility trusted = \(trusted)")
+        _ = AXIsProcessTrustedWithOptions(options)
+    }
+
+    /// Onboarding: registers the app in the Input Monitoring pane (and shows
+    /// the system prompt when possible), then opens the pane.
+    func requestInputMonitoringAccess() {
+        hotkey.requestAccess()
+        openInputMonitoringSettings()
     }
 
     private func prepareEngine() {
@@ -175,18 +187,11 @@ final class AppState: ObservableObject {
         }
     }
 
-    private func requestMicrophoneIfNeeded() {
-        DebugLog.log("mic auth status = \(AVCaptureDevice.authorizationStatus(for: .audio).rawValue) (0=notDetermined 1=restricted 2=denied 3=authorized)")
-        switch AVCaptureDevice.authorizationStatus(for: .audio) {
-        case .authorized:
-            break
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                Task { @MainActor [weak self] in
-                    if !granted { self?.status = .needsMicrophone }
-                }
-            }
-        default:
+    private func checkMicrophone() {
+        let auth = AVCaptureDevice.authorizationStatus(for: .audio)
+        DebugLog.log("mic auth status = \(auth.rawValue) (0=notDetermined 1=restricted 2=denied 3=authorized)")
+        // .notDetermined is left alone: the onboarding Allow button prompts.
+        if auth == .denied || auth == .restricted {
             status = .needsMicrophone
         }
     }

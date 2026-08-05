@@ -41,12 +41,10 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
     func start() -> Bool {
         guard tap == nil else { return true }
 
-        // Registers the app in the Input Monitoring pane and triggers the
-        // system prompt on first run — tapCreate alone fails silently without it.
+        // Check only; prompting is the onboarding's job (requestAccess()).
         let access = IOHIDCheckAccess(kIOHIDRequestTypeListenEvent)
         DebugLog.log("IOHIDCheckAccess(listen) = \(access.rawValue) (0=granted 1=denied 2=unknown)")
         if access != kIOHIDAccessTypeGranted {
-            IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
             return false
         }
 
@@ -79,6 +77,12 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
         CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)
         return true
+    }
+
+    /// Registers the app in the Input Monitoring pane and triggers the system
+    /// prompt. Called from the onboarding Allow button.
+    func requestAccess() {
+        IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
     }
 
     func stop() {
