@@ -1,3 +1,4 @@
+import AudioToolbox
 import AVFoundation
 
 enum MicRecorderError: Error {
@@ -22,6 +23,8 @@ final class MicRecorder: AudioCaptureService {
     var onInterrupted: (() -> Void)?
     /// Called on the main queue with the current input level (0...1).
     var onLevel: ((Float) -> Void)?
+    /// Input device UID to capture from; nil/empty uses the system default.
+    var preferredDeviceUID: String?
 
     private var speechFrames: Int = 0
     private var configObserver: NSObjectProtocol?
@@ -38,6 +41,7 @@ final class MicRecorder: AudioCaptureService {
         guard !isRecording else { throw MicRecorderError.alreadyRecording }
 
         let input = engine.inputNode
+        applyPreferredDevice(to: input)
         let inputFormat = input.outputFormat(forBus: 0)
         guard inputFormat.sampleRate > 0 else { throw MicRecorderError.formatUnavailable }
 
@@ -98,6 +102,18 @@ final class MicRecorder: AudioCaptureService {
         converter = nil
         fileURL = nil
         return url
+    }
+
+    private func applyPreferredDevice(to input: AVAudioInputNode) {
+        guard let uid = preferredDeviceUID, !uid.isEmpty else { return }
+        guard var deviceID = AudioDeviceList.deviceID(forUID: uid), let unit = input.audioUnit else {
+            DebugLog.log("mic override: device \(uid) not found, using default")
+            return
+        }
+        let status = AudioUnitSetProperty(
+            unit, kAudioOutputUnitProperty_CurrentDevice, kAudioUnitScope_Global, 0,
+            &deviceID, UInt32(MemoryLayout<AudioDeviceID>.size))
+        DebugLog.log("mic override -> \(uid) (status \(status))")
     }
 
     private func append(buffer: AVAudioPCMBuffer) {

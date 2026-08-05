@@ -21,6 +21,8 @@ final class AppState: ObservableObject {
     /// Drives the frame-swap animation of the menu bar icon (symbolEffect
     /// doesn't animate inside a MenuBarExtra label).
     @Published var animPhase = 0
+    /// Last transcriptions, newest first (max 10).
+    @Published var history: [String] = []
     private var animTimer: Timer?
 
     var isRecording: Bool { status == .recording }
@@ -70,6 +72,7 @@ final class AppState: ObservableObject {
             .sink { [weak self] settings in
                 guard let self else { return }
                 self.hotkey.mediaKeyEnabled = settings.mediaKeyToggle
+                self.hotkey.pushToTalk = settings.pushToTalk
                 settings.mediaKeyToggle ? self.mediaRemote.enable() : self.mediaRemote.disable()
                 if settings.engine != self.activeEngineChoice {
                     self.activeEngineChoice = settings.engine
@@ -82,7 +85,19 @@ final class AppState: ObservableObject {
                     DebugLog.log("hotkey changed to \(settings.keyChord.display)")
                 }
             }
-        hotkey.onActivation = { [weak self] in self?.toggle() }
+        hotkey.pushToTalk = store.settings.pushToTalk
+        hotkey.onActivation = { [weak self] in
+            guard let self else { return }
+            if self.store.settings.pushToTalk {
+                if !self.recorder.isRecording { self.toggle() }
+            } else {
+                self.toggle()
+            }
+        }
+        hotkey.onDeactivation = { [weak self] in
+            guard let self, self.recorder.isRecording else { return }
+            self.toggle()
+        }
         hotkey.onCancel = { [weak self] in self?.cancelRecording() }
         hotkey.escapeActive = { [weak self] in self?.isRecording ?? false }
         recorder.onLevel = { [weak self] level in
@@ -91,7 +106,7 @@ final class AppState: ObservableObject {
         recorder.onInterrupted = { [weak self] in
             guard let self else { return }
             self.overlay.hide()
-            self.status = .error("Microfone trocado — gravação cancelada")
+            self.status = .error("Microphone changed, recording cancelled")
             NSSound(named: "Basso")?.play()
         }
         if !hotkey.start() {
@@ -137,7 +152,7 @@ final class AppState: ObservableObject {
                 engineReady = true
                 if !isRecording { status = .idle }
             } catch {
-                status = .error("Falha ao carregar modelo: \(error.localizedDescription)")
+                status = .error("Model load failed: \(error.localizedDescription)")
                 DebugLog.log("engine prepare failed: \(error)")
             }
         }
@@ -206,6 +221,7 @@ final class AppState: ObservableObject {
         } else {
             guard engineReady else { return }
             do {
+                recorder.preferredDeviceUID = store.settings.preferredMicUID
                 try recorder.startRecording()
                 status = .recording
                 overlay.show()
@@ -228,9 +244,15 @@ final class AppState: ObservableObject {
         Task {
             do {
                 let trimmed = SilenceTrimmer.trim(url)
-                let raw = try await engine.transcribe(wavURL: trimmed, language: store.settings.language)
+                let raw = try await engine.transcribe(
+                    wavURL: trimmed,
+                    language: store.settings.language,
+                    vocabulary: store.settings.vocabulary
+                )
                 if trimmed != url { try? FileManager.default.removeItem(at: trimmed) }
                 if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
+                    history.insert(text, at: 0)
+                    if history.count > 10 { history.removeLast() }
                     if store.settings.copyToClipboard {
                         let pasteboard = NSPasteboard.general
                         pasteboard.clearContents()
@@ -246,7 +268,7 @@ final class AppState: ObservableObject {
                 }
                 status = .idle
             } catch {
-                status = .error("Transcrição falhou: \(error.localizedDescription)")
+                status = .error("Transcription failed: \(error.localizedDescription)")
                 DebugLog.log("transcribe failed: \(error)")
             }
         }

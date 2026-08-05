@@ -8,6 +8,8 @@ protocol AudioCaptureService: AnyObject {
     var onInterrupted: (() -> Void)? { get set }
     /// Called on the main queue with the current input level (0...1) while recording.
     var onLevel: ((Float) -> Void)? { get set }
+    /// Input device UID to capture from; nil/empty uses the system default.
+    var preferredDeviceUID: String? { get set }
     func startRecording() throws
     /// Stops capture and returns the URL of the recorded 16kHz mono wav.
     func stopRecording() throws -> URL

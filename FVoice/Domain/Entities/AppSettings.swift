@@ -6,8 +6,8 @@ enum InsertMode: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .typing: return "Digitação (recomendado)"
-        case .hook: return "Hook (rodar script)"
+        case .typing: return "Typing (recommended)"
+        case .hook: return "Hook (run script)"
         }
     }
 }
@@ -74,6 +74,12 @@ struct AppSettings: Codable, Equatable {
     var engine: EngineChoice = .whisper
     /// Also copy every transcription to the clipboard.
     var copyToClipboard: Bool = false
+    /// Comma-separated jargon fed to Whisper as an initial prompt.
+    var vocabulary: String = ""
+    /// Input device UID; empty means system default.
+    var preferredMicUID: String = ""
+    /// Hold the shortcut to record, release to transcribe.
+    var pushToTalk: Bool = false
     /// Shell script run by the hook insert mode. {{text}} is replaced by the
     /// transcription (also available as $FVOICE_TEXT).
     var hookScript: String = "echo \"{{text}}\" >> ~/fvoice-hook.log"
@@ -82,6 +88,7 @@ struct AppSettings: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case language, insertMode, autoEnter, keyChord, launchAtLogin, mediaKeyToggle, engine, hookScript, copyToClipboard
+        case vocabulary, preferredMicUID, pushToTalk
         case legacyHotkey = "hotkey"
     }
 
@@ -101,6 +108,9 @@ struct AppSettings: Codable, Equatable {
         hookScript = try c.decodeIfPresent(String.self, forKey: .hookScript)
             ?? "echo \"{{text}}\" >> ~/fvoice-hook.log"
         copyToClipboard = try c.decodeIfPresent(Bool.self, forKey: .copyToClipboard) ?? false
+        vocabulary = try c.decodeIfPresent(String.self, forKey: .vocabulary) ?? ""
+        preferredMicUID = try c.decodeIfPresent(String.self, forKey: .preferredMicUID) ?? ""
+        pushToTalk = try c.decodeIfPresent(Bool.self, forKey: .pushToTalk) ?? false
         if let chord = try c.decodeIfPresent(KeyChord.self, forKey: .keyChord) {
             keyChord = chord
         } else {
@@ -124,5 +134,8 @@ struct AppSettings: Codable, Equatable {
         try c.encode(engine, forKey: .engine)
         try c.encode(hookScript, forKey: .hookScript)
         try c.encode(copyToClipboard, forKey: .copyToClipboard)
+        try c.encode(vocabulary, forKey: .vocabulary)
+        try c.encode(preferredMicUID, forKey: .preferredMicUID)
+        try c.encode(pushToTalk, forKey: .pushToTalk)
     }
 }

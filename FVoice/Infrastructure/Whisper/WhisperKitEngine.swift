@@ -35,12 +35,22 @@ final class WhisperKitEngine: TranscriptionEngine {
         DebugLog.log("model loaded")
     }
 
-    func transcribe(wavURL: URL, language: String) async throws -> String {
+    func transcribe(wavURL: URL, language: String, vocabulary: String) async throws -> String {
         guard let whisper else { throw WhisperKitEngineError.notPrepared }
-        let options = DecodingOptions(
+        var options = DecodingOptions(
             task: .transcribe,
             language: language == "auto" ? nil : language
         )
+        // Bias decoding toward the user's jargon via the initial prompt.
+        let vocab = vocabulary.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !vocab.isEmpty, let tokenizer = whisper.tokenizer {
+            let tokens = tokenizer.encode(text: " " + vocab)
+                .filter { $0 < tokenizer.specialTokens.specialTokenBegin }
+            if !tokens.isEmpty {
+                options.promptTokens = tokens
+                options.usePrefillPrompt = true
+            }
+        }
         let results = try await whisper.transcribe(audioPath: wavURL.path, decodeOptions: options)
         let text = results.map(\.text).joined(separator: " ")
             .trimmingCharacters(in: .whitespacesAndNewlines)

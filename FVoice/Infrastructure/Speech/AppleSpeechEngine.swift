@@ -15,11 +15,13 @@ final class AppleSpeechEngine: TranscriptionEngine {
     private var verifiedLocales = Set<String>()
 
     private static func locale(for language: String) -> Locale {
-        switch language {
-        case "en": return Locale(identifier: "en-US")
-        case "es": return Locale(identifier: "es-ES")
-        default: return Locale(identifier: "pt-BR")  // "auto" unsupported here
-        }
+        let identifiers = [
+            "pt": "pt-BR", "en": "en-US", "es": "es-ES", "fr": "fr-FR",
+            "de": "de-DE", "it": "it-IT", "ja": "ja-JP", "ko": "ko-KR",
+            "zh": "zh-CN", "ru": "ru-RU",
+        ]
+        // "auto" is unsupported here; fall back to pt-BR.
+        return Locale(identifier: identifiers[language] ?? "pt-BR")
     }
 
     func prepare(onProgress: @escaping (Double) -> Void) async throws {
@@ -27,7 +29,7 @@ final class AppleSpeechEngine: TranscriptionEngine {
         DebugLog.log("apple speech assets ready")
     }
 
-    func transcribe(wavURL: URL, language: String) async throws -> String {
+    func transcribe(wavURL: URL, language: String, vocabulary: String) async throws -> String {
         let locale = Self.locale(for: language)
         let supported = await SpeechTranscriber.supportedLocales
         guard supported.contains(where: {

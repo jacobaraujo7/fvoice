@@ -4,11 +4,11 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralSettingsTab()
-                .tabItem { Label("Geral", systemImage: "gearshape") }
+                .tabItem { Label("General", systemImage: "gearshape") }
             RecordingSettingsTab()
-                .tabItem { Label("Gravação", systemImage: "mic") }
+                .tabItem { Label("Recording", systemImage: "mic") }
         }
-        .frame(width: 460)
+        .frame(width: 580, height: 560)
         .onAppear {
             NSApp.activate(ignoringOtherApps: true)
             NSApp.windows.first { $0.identifier?.rawValue.contains("Settings") == true }?
@@ -31,7 +31,7 @@ private struct GeneralSettingsTab: View {
                         .frame(width: 48, height: 48)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("FVoice").font(.headline)
-                        Text("Ditado 100% local, direto no cursor")
+                        Text("100% local dictation, straight to your cursor")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -39,7 +39,7 @@ private struct GeneralSettingsTab: View {
                 .padding(.vertical, 2)
             }
 
-            Section("Transcrição") {
+            Section("Transcription") {
                 if #available(macOS 26.0, *) {
                     SettingsRow(icon: "cpu", color: .purple, title: "Engine") {
                         Picker("", selection: state.binding(\.engine)) {
@@ -49,7 +49,7 @@ private struct GeneralSettingsTab: View {
                         }
                         .labelsHidden()
                     }
-                    Text("Apple: mais rápido. Whisper: melhor com termos técnicos em inglês.")
+                    Text("Apple: faster. Whisper: better with technical terms.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
@@ -58,19 +58,40 @@ private struct GeneralSettingsTab: View {
                     }
                 }
 
-                SettingsRow(icon: "globe", color: .blue, title: "Idioma") {
+                SettingsRow(icon: "globe", color: .blue, title: "Language") {
                     Picker("", selection: state.binding(\.language)) {
-                        Text("Português").tag("pt")
-                        Text("Inglês").tag("en")
-                        Text("Espanhol").tag("es")
-                        Text("Detectar automaticamente").tag("auto")
+                        Text("Portuguese").tag("pt")
+                        Text("English").tag("en")
+                        Text("Spanish").tag("es")
+                        Text("French").tag("fr")
+                        Text("German").tag("de")
+                        Text("Italian").tag("it")
+                        Text("Japanese").tag("ja")
+                        Text("Korean").tag("ko")
+                        Text("Chinese").tag("zh")
+                        Text("Russian").tag("ru")
+                        Text("Auto-detect").tag("auto")
                     }
                     .labelsHidden()
                 }
+                Text("Auto-detect works on Whisper only; the Apple engine falls back to Portuguese.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Vocabulary hints")
+                    TextField("worktree, refactor, staging, use case…",
+                              text: state.binding(\.vocabulary))
+                        .textFieldStyle(.roundedBorder)
+                    Text("Comma-separated terms that bias Whisper toward your jargon. Whisper engine only.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 4)
             }
 
-            Section("Sistema") {
-                SettingsRow(icon: "power", color: .green, title: "Abrir no login") {
+            Section("System") {
+                SettingsRow(icon: "power", color: .green, title: "Launch at login") {
                     Toggle("", isOn: state.binding(\.launchAtLogin))
                         .toggleStyle(.switch)
                         .labelsHidden()
@@ -84,28 +105,56 @@ private struct GeneralSettingsTab: View {
 private struct RecordingSettingsTab: View {
     @EnvironmentObject var state: AppState
 
+    private var microphones: [AudioDeviceList.Device] {
+        AudioDeviceList.inputDevices()
+    }
+
     var body: some View {
         Form {
-            Section("Atalho") {
-                SettingsRow(icon: "keyboard", color: .orange, title: "Atalho de gravação") {
+            Section("Shortcut") {
+                SettingsRow(icon: "keyboard", color: .orange, title: "Recording shortcut") {
                     HotkeyRecorderButton()
                 }
-                Text("Clique e pressione a combinação desejada (uma tecla + ao menos um modificador). Esc cancela.")
+                Text("Click, then press the desired combination (a key plus at least one modifier). Esc cancels.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                SettingsRow(icon: "airpods", color: .gray, title: "Botão dos AirPods grava") {
+                SettingsRow(icon: "hand.tap", color: .pink, title: "Push to talk") {
+                    Toggle("", isOn: state.binding(\.pushToTalk))
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
+                Text("Hold the shortcut to record, release to transcribe. Off: press once to start, again to stop.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                SettingsRow(icon: "airpods", color: .gray, title: "AirPods button records") {
                     Toggle("", isOn: state.binding(\.mediaKeyToggle))
                         .toggleStyle(.switch)
                         .labelsHidden()
                 }
-                Text("Enquanto ligado, o apertão na haste não controla mais a música.")
+                Text("While on, the stem press no longer controls media playback. Always toggle mode.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Section("Inserção de texto") {
-                SettingsRow(icon: "text.cursor", color: .red, title: "Modo") {
+            Section("Input") {
+                SettingsRow(icon: "mic", color: .cyan, title: "Microphone") {
+                    Picker("", selection: state.binding(\.preferredMicUID)) {
+                        Text("System default").tag("")
+                        ForEach(microphones) { device in
+                            Text(device.name).tag(device.uid)
+                        }
+                    }
+                    .labelsHidden()
+                }
+                Text("Pin the Mac's microphone to keep full quality while wearing AirPods.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Text insertion") {
+                SettingsRow(icon: "text.cursor", color: .red, title: "Mode") {
                     Picker("", selection: state.binding(\.insertMode)) {
                         ForEach(InsertMode.allCases) { mode in
                             Text(mode.label).tag(mode)
@@ -115,30 +164,30 @@ private struct RecordingSettingsTab: View {
                 }
                 if state.store.settings.insertMode == .hook {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Script do hook")
+                        Text("Hook script")
                         TextEditor(text: state.binding(\.hookScript))
                             .font(.system(.caption, design: .monospaced))
-                            .frame(height: 90)
+                            .frame(height: 100)
                             .scrollContentBackground(.hidden)
                             .padding(6)
                             .background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 6))
-                        Text("Use {{text}} onde a transcrição deve entrar (também disponível como $FVOICE_TEXT). Roda em zsh, no lugar de digitar/colar.")
+                        Text("Use {{text}} where the transcription goes (also available as $FVOICE_TEXT). Runs in zsh instead of typing.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
-                SettingsRow(icon: "doc.on.clipboard", color: .indigo, title: "Copiar para o clipboard") {
+                SettingsRow(icon: "doc.on.clipboard", color: .indigo, title: "Copy to clipboard") {
                     Toggle("", isOn: state.binding(\.copyToClipboard))
                         .toggleStyle(.switch)
                         .labelsHidden()
                 }
-                SettingsRow(icon: "return", color: .teal, title: "Enter automático") {
+                SettingsRow(icon: "return", color: .teal, title: "Auto Enter") {
                     Toggle("", isOn: state.binding(\.autoEnter))
                         .toggleStyle(.switch)
                         .labelsHidden()
                 }
-                Text("Útil para enviar o prompt direto ao Claude Code.")
+                Text("Sends the prompt straight to Claude Code after inserting.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -182,7 +231,7 @@ private struct HotkeyRecorderButton: View {
         Button {
             armed ? disarm() : arm()
         } label: {
-            Text(armed ? "Pressione as teclas…" : state.store.settings.keyChord.display)
+            Text(armed ? "Press keys…" : state.store.settings.keyChord.display)
                 .frame(minWidth: 120)
         }
         .buttonStyle(.bordered)
@@ -194,7 +243,6 @@ private struct HotkeyRecorderButton: View {
         armed = true
         state.suspendHotkey(true)
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-            defer {} // events are always swallowed while armed
             if event.keyCode == 53 {  // Esc cancels
                 disarm()
                 return nil

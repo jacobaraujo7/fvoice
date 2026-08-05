@@ -20,6 +20,10 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
     /// Set while the Settings shortcut recorder is capturing, so pressing the
     /// current hotkey there doesn't start a recording.
     var suspended = false
+    /// Push-to-talk: key down fires onActivation, key up fires onDeactivation.
+    var pushToTalk = false
+    var onDeactivation: (() -> Void)?
+    private var pttKeyHeld = false
     /// When true, media Play/Pause (AirPods stem press) also toggles and is
     /// consumed so it stops controlling playback. Takes effect immediately.
     var mediaKeyEnabled = false
@@ -54,6 +58,7 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
         }
 
         let mask = CGEventMask(1 << CGEventType.keyDown.rawValue)
+            | CGEventMask(1 << CGEventType.keyUp.rawValue)
             | CGEventMask(1 << Self.systemDefinedEventType.rawValue)
         let callback: CGEventTapCallBack = { _, type, event, refcon in
             let monitor = Unmanaged<GlobalHotkeyMonitor>.fromOpaque(refcon!).takeUnretainedValue()
@@ -114,15 +119,32 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
             return true
         }
 
+        guard !suspended else { return false }
+        let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+
+        // Push-to-talk release: match by key code alone, since modifiers may
+        // already be up by the time the main key is released.
+        if type == .keyUp {
+            guard pushToTalk, pttKeyHeld, keyCode == Int64(keyChord.keyCode) else { return false }
+            pttKeyHeld = false
+            DispatchQueue.main.async { [weak self] in
+                self?.onDeactivation?()
+            }
+            return true
+        }
+
         guard type == .keyDown,
-              !suspended,
-              event.getIntegerValueField(.keyboardEventKeycode) == Int64(keyChord.keyCode),
+              keyCode == Int64(keyChord.keyCode),
               modifiers == requiredFlags
         else { return false }
 
-        // Ignore key-repeat while Space is held.
+        // Ignore key-repeat while the key is held.
         guard event.getIntegerValueField(.keyboardEventAutorepeat) == 0 else { return true }
 
+        if pushToTalk {
+            guard !pttKeyHeld else { return true }
+            pttKeyHeld = true
+        }
         DispatchQueue.main.async { [weak self] in
             self?.onActivation?()
         }
