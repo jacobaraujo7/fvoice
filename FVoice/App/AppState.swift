@@ -30,7 +30,6 @@ final class AppState: ObservableObject {
     let store = SettingsStore()
 
     private let hotkey = GlobalHotkeyMonitor()
-    private let mediaRemote = MediaKeyRemote()
     private let recorder: AudioCaptureService = MicRecorder()
     private let whisperKit = WhisperKitEngine()
     private var whisperEngine: TranscriptionEngine { whisperKit }
@@ -66,16 +65,11 @@ final class AppState: ObservableObject {
             self?.objectWillChange.send()
         }
         hotkey.keyChord = store.settings.keyChord
-        hotkey.mediaKeyEnabled = store.settings.mediaKeyToggle
-        mediaRemote.onActivation = { [weak self] in self?.toggle() }
-        if store.settings.mediaKeyToggle { mediaRemote.enable() }
         settingsObserver = store.$settings
             .removeDuplicates()
             .sink { [weak self] settings in
                 guard let self else { return }
-                self.hotkey.mediaKeyEnabled = settings.mediaKeyToggle
                 self.hotkey.pushToTalk = settings.pushToTalk
-                settings.mediaKeyToggle ? self.mediaRemote.enable() : self.mediaRemote.disable()
                 var reloadNeeded = false
                 if settings.engine != self.activeEngineChoice {
                     self.activeEngineChoice = settings.engine
@@ -123,7 +117,6 @@ final class AppState: ObservableObject {
         if !hotkey.start() {
             status = .needsInputMonitoring
         }
-        registerInputMuteGesture()
         requestMicrophoneIfNeeded()
         requestAccessibilityIfNeeded()
         activeEngineChoice = store.settings.engine
@@ -146,30 +139,6 @@ final class AppState: ObservableObject {
         } else if !animating {
             animTimer?.invalidate()
             animTimer = nil
-        }
-    }
-
-    /// While the mic is live, AirPods switch to the call profile and the stem
-    /// press becomes an input-mute gesture instead of play/pause. Handle it as
-    /// "stop and transcribe".
-    private func registerInputMuteGesture() {
-        try? AVAudioApplication.shared.setInputMuted(false)
-        do {
-            try AVAudioApplication.shared.setInputMuteStateChangeHandler { [weak self] muted in
-                // Only the mute gesture (true) is the stem press. The false
-                // events are our own unmute reset; acting on them loops.
-                guard muted else { return true }
-                DebugLog.log("input mute gesture received")
-                Task { @MainActor in
-                    guard let self else { return }
-                    if self.recorder.isRecording { self.toggle() }
-                    // Unmute so the next stem press fires the handler again.
-                    try? AVAudioApplication.shared.setInputMuted(false)
-                }
-                return true
-            }
-        } catch {
-            DebugLog.log("input mute handler registration failed: \(error)")
         }
     }
 
@@ -259,11 +228,10 @@ final class AppState: ObservableObject {
         } else {
             guard engineReady else { return }
             do {
-                // The system-level input mute may be stuck on (stem gesture,
-                // previous session); a muted input records pure silence.
+                // The system-level input mute may be stuck on from earlier
+                // sessions; a muted input records pure silence.
                 try? AVAudioApplication.shared.setInputMuted(false)
                 recorder.preferredDeviceUID = store.settings.preferredMicUID
-                recorder.voiceProcessingEnabled = store.settings.mediaKeyToggle
                 try recorder.startRecording()
                 status = .recording
                 overlay.show()

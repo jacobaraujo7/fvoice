@@ -142,14 +142,6 @@ private struct RecordingSettingsTab: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                SettingsRow(icon: "airpods", color: .gray, title: "AirPods button records") {
-                    Toggle("", isOn: state.binding(\.mediaKeyToggle))
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                }
-                Text("While on, the stem press no longer controls media playback. Always toggle mode.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
 
             Section("Input") {

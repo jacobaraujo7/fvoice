@@ -90,9 +90,6 @@ struct AppSettings: Codable, Equatable {
     var autoEnter: Bool = false          // press Return after inserting
     var keyChord: KeyChord = .optionSpace
     var launchAtLogin: Bool = false
-    /// AirPods stem press (media Play/Pause) toggles recording. While on,
-    /// the press no longer controls media playback.
-    var mediaKeyToggle: Bool = false
     var engine: EngineChoice = .whisper
     var whisperModel: WhisperModel = .turbo
     /// Also copy every transcription to the clipboard.
@@ -110,7 +107,7 @@ struct AppSettings: Codable, Equatable {
     init() {}
 
     private enum CodingKeys: String, CodingKey {
-        case language, insertMode, autoEnter, keyChord, launchAtLogin, mediaKeyToggle, engine, hookScript, copyToClipboard
+        case language, insertMode, autoEnter, keyChord, launchAtLogin, engine, hookScript, copyToClipboard
         case vocabulary, preferredMicUID, pushToTalk, whisperModel
         case legacyHotkey = "hotkey"
     }
@@ -126,7 +123,6 @@ struct AppSettings: Codable, Equatable {
         insertMode = rawMode.flatMap(InsertMode.init(rawValue:)) ?? .typing
         autoEnter = try c.decodeIfPresent(Bool.self, forKey: .autoEnter) ?? false
         launchAtLogin = try c.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
-        mediaKeyToggle = try c.decodeIfPresent(Bool.self, forKey: .mediaKeyToggle) ?? false
         engine = try c.decodeIfPresent(EngineChoice.self, forKey: .engine) ?? .whisper
         hookScript = try c.decodeIfPresent(String.self, forKey: .hookScript)
             ?? "echo \"{{text}}\" >> ~/fvoice-hook.log"
@@ -155,7 +151,6 @@ struct AppSettings: Codable, Equatable {
         try c.encode(autoEnter, forKey: .autoEnter)
         try c.encode(keyChord, forKey: .keyChord)
         try c.encode(launchAtLogin, forKey: .launchAtLogin)
-        try c.encode(mediaKeyToggle, forKey: .mediaKeyToggle)
         try c.encode(engine, forKey: .engine)
         try c.encode(hookScript, forKey: .hookScript)
         try c.encode(copyToClipboard, forKey: .copyToClipboard)

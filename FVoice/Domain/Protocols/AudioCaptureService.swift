@@ -10,9 +10,6 @@ protocol AudioCaptureService: AnyObject {
     var onLevel: ((Float) -> Void)? { get set }
     /// Input device UID to capture from; nil/empty uses the system default.
     var preferredDeviceUID: String? { get set }
-    /// Capture through the voice-processing unit (required for the system to
-    /// deliver the AirPods stem mute gesture to the app).
-    var voiceProcessingEnabled: Bool { get set }
     func startRecording() throws
     /// Stops capture and returns the URL of the recorded 16kHz mono wav.
     func stopRecording() throws -> URL
