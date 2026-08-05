@@ -20,8 +20,11 @@ final class AppleSpeechEngine: TranscriptionEngine {
             "de": "de-DE", "it": "it-IT", "ja": "ja-JP", "ko": "ko-KR",
             "zh": "zh-CN", "ru": "ru-RU",
         ]
-        // "auto" is unsupported here; fall back to pt-BR.
-        return Locale(identifier: identifiers[language] ?? "pt-BR")
+        // "auto" is unsupported here; fall back to the system language.
+        if let identifier = identifiers[language] {
+            return Locale(identifier: identifier)
+        }
+        return Locale.current
     }
 
     func prepare(onProgress: @escaping (Double) -> Void) async throws {

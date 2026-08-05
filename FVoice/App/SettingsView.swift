@@ -88,7 +88,7 @@ private struct GeneralSettingsTab: View {
                     }
                     .labelsHidden()
                 }
-                Text("Auto-detect works on Whisper only; the Apple engine falls back to Portuguese.")
+                Text("Auto-detect works on Whisper only; the Apple engine falls back to the system language.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
