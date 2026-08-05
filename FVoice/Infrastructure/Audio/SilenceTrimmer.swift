@@ -12,6 +12,37 @@ enum SilenceTrimmer {
     private static let keptPauseSeconds = 0.25
     private static let threshold: Float = 0.012
 
+    /// Index of the middle of the last silent stretch (>= 0.3s) in the
+    /// samples, or nil when there is none. Used by streaming to cut chunks at
+    /// pause boundaries instead of mid-word.
+    static func lastSilenceCut(in samples: [Float], sampleRate: Double) -> Int? {
+        let window = Int(sampleRate * windowSeconds)
+        guard window > 0, samples.count > window else { return nil }
+        let minSilentWindows = Int(0.3 / windowSeconds)
+
+        var best: Int?
+        var runLength = 0
+        var start = 0
+        while start + window <= samples.count {
+            var sum: Float = 0
+            for i in start..<(start + window) { sum += samples[i] * samples[i] }
+            let silent = (sum / Float(window)).squareRoot() <= threshold
+            if silent {
+                runLength += 1
+            } else {
+                if runLength >= minSilentWindows {
+                    best = start - (runLength * window) / 2
+                }
+                runLength = 0
+            }
+            start += window
+        }
+        if runLength >= minSilentWindows {
+            best = samples.count - (runLength * window) / 2
+        }
+        return best
+    }
+
     /// Returns the samples to transcribe — trimmed when worthwhile, the
     /// original otherwise.
     static func trim(_ samples: [Float], sampleRate: Double) -> [Float] {

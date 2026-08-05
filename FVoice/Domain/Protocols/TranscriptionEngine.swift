@@ -6,5 +6,6 @@ protocol TranscriptionEngine: AnyObject {
     /// samples: 16kHz mono Float32 audio.
     /// language: ISO code ("pt", "en", …) or "auto" for detection.
     /// vocabulary: comma-separated domain terms; engines may ignore it.
-    func transcribe(samples: [Float], language: String, vocabulary: String) async throws -> String
+    /// context: text transcribed so far (streaming chunks); engines may ignore it.
+    func transcribe(samples: [Float], language: String, vocabulary: String, context: String) async throws -> String
 }

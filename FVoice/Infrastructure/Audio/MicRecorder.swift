@@ -101,6 +101,20 @@ final class MicRecorder: AudioCaptureService {
         return recorded
     }
 
+    var recordedSampleCount: Int {
+        samplesLock.lock()
+        defer { samplesLock.unlock() }
+        return samples.count
+    }
+
+    func recordedSamples(from start: Int, to end: Int) -> [Float] {
+        samplesLock.lock()
+        defer { samplesLock.unlock() }
+        let upper = min(end, samples.count)
+        let lower = min(max(0, start), upper)
+        return Array(samples[lower..<upper])
+    }
+
     private func applyPreferredDevice(to input: AVAudioInputNode) {
         guard let uid = preferredDeviceUID, !uid.isEmpty else { return }
         guard var deviceID = AudioDeviceList.deviceID(forUID: uid), let unit = input.audioUnit else {

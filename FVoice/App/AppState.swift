@@ -55,6 +55,16 @@ final class AppState: ObservableObject {
     private static let maxRecordingSeconds: TimeInterval = 120
     private var autoStopTimer: Timer?
 
+    // Hybrid streaming: dictations under chunkSeconds are transcribed in one
+    // pass (best quality); beyond that, completed chunks are transcribed while
+    // the user is still speaking, cut at pause boundaries.
+    private static let chunkSeconds: Double = 30
+    private static let forceChunkSeconds: Double = 45
+    private var processedOffset = 0
+    private var partialTexts: [String] = []
+    private var chunkChain: Task<Void, Never>?
+    private var streamMonitor: Task<Void, Never>?
+
     private var inserter: TextInserter {
         store.settings.insertMode == .hook ? hookInserter : typingInserter
     }
@@ -200,6 +210,10 @@ final class AppState: ObservableObject {
         autoStopTimer?.invalidate()
         autoStopTimer = nil
         overlay.hide()
+        streamMonitor?.cancel()
+        streamMonitor = nil
+        chunkChain = nil
+        partialTexts = []
         _ = try? recorder.stopRecording()
         status = .idle
         NSSound(named: "Bottle")?.play()
@@ -211,6 +225,8 @@ final class AppState: ObservableObject {
             autoStopTimer?.invalidate()
             autoStopTimer = nil
             overlay.hide()
+            streamMonitor?.cancel()
+            streamMonitor = nil
             do {
                 let samples = try recorder.stopRecording()
                 NSSound(named: "Pop")?.play()
@@ -218,7 +234,8 @@ final class AppState: ObservableObject {
                     DebugLog.log("skipped transcription — only \(String(format: "%.2f", recorder.lastSpeechSeconds))s of speech")
                     status = .idle
                 } else {
-                    transcribe(samples: samples)
+                    let remainder = Array(samples[min(processedOffset, samples.count)...])
+                    transcribe(remainder: remainder)
                 }
             } catch {
                 status = .error("\(error)")
@@ -231,6 +248,10 @@ final class AppState: ObservableObject {
                 try? AVAudioApplication.shared.setInputMuted(false)
                 recorder.preferredDeviceUID = store.settings.preferredMicUID
                 try recorder.startRecording()
+                processedOffset = 0
+                partialTexts = []
+                chunkChain = nil
+                startStreamMonitor()
                 status = .recording
                 overlay.show()
                 NSSound(named: "Tink")?.play()
@@ -247,16 +268,85 @@ final class AppState: ObservableObject {
         }
     }
 
-    private func transcribe(samples: [Float]) {
+    /// Streaming: every second, dispatch a completed chunk once enough
+    /// unprocessed audio has accumulated, cutting at a pause boundary.
+    private func startStreamMonitor() {
+        streamMonitor?.cancel()
+        streamMonitor = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard let self, self.recorder.isRecording else { break }
+                self.maybeDispatchChunk()
+            }
+        }
+    }
+
+    private func maybeDispatchChunk() {
+        guard recorder.isRecording, engineReady else { return }
+        let rate = MicRecorder.sampleRate
+        let total = recorder.recordedSampleCount
+        let unprocessedSeconds = Double(total - processedOffset) / rate
+        guard unprocessedSeconds >= Self.chunkSeconds else { return }
+
+        let region = recorder.recordedSamples(from: processedOffset, to: total)
+        var cut = SilenceTrimmer.lastSilenceCut(in: region, sampleRate: rate)
+        if cut == nil || cut! < Int(rate * 5) {
+            // No usable pause yet; wait, unless speech has run on too long.
+            guard unprocessedSeconds >= Self.forceChunkSeconds else { return }
+            cut = region.count
+        }
+        let chunk = Array(region[..<cut!])
+        processedOffset += cut!
+        DebugLog.log(String(format: "stream: chunk %.1fs dispatched (offset now %.1fs)",
+                            Double(chunk.count) / rate, Double(processedOffset) / rate))
+        enqueue(chunk: chunk)
+    }
+
+    /// Chunks are transcribed strictly in order, each seeing the text so far.
+    private func enqueue(chunk: [Float]) {
+        let previous = chunkChain
+        chunkChain = Task { [weak self] in
+            await previous?.value
+            guard let self else { return }
+            let trimmed = SilenceTrimmer.trim(chunk, sampleRate: MicRecorder.sampleRate)
+            do {
+                let text = try await self.engine.transcribe(
+                    samples: trimmed,
+                    language: self.store.settings.language,
+                    vocabulary: self.store.settings.vocabulary,
+                    context: self.partialTexts.joined(separator: " ")
+                )
+                let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !clean.isEmpty { self.partialTexts.append(clean) }
+            } catch {
+                DebugLog.log("stream chunk failed: \(error)")
+            }
+        }
+    }
+
+    private func transcribe(remainder: [Float]) {
         status = .transcribing
         Task {
+            // Wait for in-flight chunks, then transcribe the tail with their
+            // text as context and assemble the full result.
+            await chunkChain?.value
             do {
-                let trimmed = SilenceTrimmer.trim(samples, sampleRate: MicRecorder.sampleRate)
-                let raw = try await engine.transcribe(
-                    samples: trimmed,
-                    language: store.settings.language,
-                    vocabulary: store.settings.vocabulary
-                )
+                var tail = ""
+                if !remainder.isEmpty {
+                    let trimmed = SilenceTrimmer.trim(remainder, sampleRate: MicRecorder.sampleRate)
+                    tail = try await engine.transcribe(
+                        samples: trimmed,
+                        language: store.settings.language,
+                        vocabulary: store.settings.vocabulary,
+                        context: partialTexts.joined(separator: " ")
+                    )
+                }
+                let raw = (partialTexts + [tail])
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+                    .joined(separator: " ")
+                partialTexts = []
+                chunkChain = nil
                 if let text = TranscriptionFilter.clean(raw, speechSeconds: recorder.lastSpeechSeconds) {
                     history.insert(text, at: 0)
                     if history.count > 10 { history.removeLast() }

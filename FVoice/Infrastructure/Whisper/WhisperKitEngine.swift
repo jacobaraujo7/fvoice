@@ -43,16 +43,19 @@ final class WhisperKitEngine: TranscriptionEngine {
         DebugLog.log("model loaded (\(variant))")
     }
 
-    func transcribe(samples: [Float], language: String, vocabulary: String) async throws -> String {
+    func transcribe(samples: [Float], language: String, vocabulary: String, context: String) async throws -> String {
         guard let whisper else { throw WhisperKitEngineError.notPrepared }
         var options = DecodingOptions(
             task: .transcribe,
             language: language == "auto" ? nil : language
         )
-        // Bias decoding toward the user's jargon via the initial prompt.
+        // Initial prompt: the user's jargon plus the tail of the text already
+        // transcribed (streaming chunk context).
         let vocab = vocabulary.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !vocab.isEmpty, let tokenizer = whisper.tokenizer {
-            let tokens = tokenizer.encode(text: " " + vocab)
+        let contextTail = String(context.suffix(200)).trimmingCharacters(in: .whitespacesAndNewlines)
+        let prompt = [vocab, contextTail].filter { !$0.isEmpty }.joined(separator: ". ")
+        if !prompt.isEmpty, let tokenizer = whisper.tokenizer {
+            let tokens = tokenizer.encode(text: " " + prompt)
                 .filter { $0 < tokenizer.specialTokens.specialTokenBegin }
             if !tokens.isEmpty {
                 options.promptTokens = tokens

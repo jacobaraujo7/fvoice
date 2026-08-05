@@ -32,7 +32,7 @@ final class AppleSpeechEngine: TranscriptionEngine {
         DebugLog.log("apple speech assets ready")
     }
 
-    func transcribe(samples: [Float], language: String, vocabulary: String) async throws -> String {
+    func transcribe(samples: [Float], language: String, vocabulary: String, context: String) async throws -> String {
         // SpeechAnalyzer's file API is the stable path; write the samples to a
         // throwaway temp file and delete it right after.
         let wavURL = try Self.writeTempWav(samples: samples)

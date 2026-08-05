@@ -13,4 +13,8 @@ protocol AudioCaptureService: AnyObject {
     func startRecording() throws
     /// Stops capture and returns the recorded 16kHz mono Float32 samples.
     func stopRecording() throws -> [Float]
+    /// Samples captured so far in the current recording.
+    var recordedSampleCount: Int { get }
+    /// Copies a range of the samples captured so far (for streaming chunks).
+    func recordedSamples(from start: Int, to end: Int) -> [Float]
 }
