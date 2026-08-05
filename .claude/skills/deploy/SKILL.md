@@ -39,13 +39,19 @@ prepare the release correctly, fire the tag, and watch the pipeline through.
    subset: `### ` section headers, `- ` bullets and plain paragraphs. No
    links, bold, code fences or nested lists.
 
-3. **Bump the version** in `FVoice/App/Info.plist`:
+3. **Bump the version** in `FVoice/App/Info.plist`. BOTH keys, always:
    ```sh
    /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString X.Y.Z" -c "Set :CFBundleVersion X.Y.Z" FVoice/App/Info.plist
    ```
-   (The workflow also injects the tag version at build time via
-   `MARKETING_VERSION`; keeping the plist in sync is for local builds and
-   honesty of the committed tree.)
+   `CFBundleVersion` is what Sparkle compares to decide whether an update is
+   offered; if it lags behind, installed apps will report "up to date"
+   forever (this bug shipped in 0.1.0, which carried build "1"). Keep it
+   identical to the semver version. `tool/package.sh` also stamps both keys
+   from the tag as a safety net, but the committed tree must match.
+   After bumping, verify:
+   ```sh
+   /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" FVoice/App/Info.plist
+   ```
 
 4. **Sanity check before tagging.** Run the tests:
    `xcodegen generate && xcodebuild -scheme FVoice -derivedDataPath build test`.
