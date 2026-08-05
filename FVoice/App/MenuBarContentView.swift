@@ -3,6 +3,7 @@ import SwiftUI
 struct MenuBarContentView: View {
     @EnvironmentObject var state: AppState
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.openWindow) private var openWindow
 
     private var chord: String { state.store.settings.keyChord.display }
 
@@ -49,6 +50,10 @@ struct MenuBarContentView: View {
         }
 
         Divider()
+        Button("Setup Assistant…") {
+            NSApp.activate(ignoringOtherApps: true)
+            openWindow(id: "onboarding")
+        }
         Button("Settings…") {
             // LSUIElement apps open windows behind everything unless activated.
             NSApp.activate(ignoringOtherApps: true)
