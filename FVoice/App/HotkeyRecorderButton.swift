@@ -2,15 +2,26 @@ import SwiftUI
 
 /// Button that captures the next key combination pressed.
 struct HotkeyRecorderButton: View {
+    /// Onboarding: show a neutral call-to-action instead of suggesting the
+    /// default shortcut, until the user records one themselves.
+    var placeholderUntilRecorded = false
+
     @EnvironmentObject var state: AppState
     @State private var armed = false
+    @State private var recorded = false
     @State private var monitor: Any?
+
+    private var label: String {
+        if armed { return String(localized: "Press keys…") }
+        if placeholderUntilRecorded, !recorded { return String(localized: "Click to record") }
+        return state.store.settings.keyChord.display
+    }
 
     var body: some View {
         Button {
             armed ? disarm() : arm()
         } label: {
-            Text(armed ? String(localized: "Press keys…") : state.store.settings.keyChord.display)
+            Text(label)
                 .frame(minWidth: 120)
         }
         .buttonStyle(.bordered)
@@ -37,6 +48,7 @@ struct HotkeyRecorderButton: View {
             chord.control = flags.contains(.control)
             chord.shift = flags.contains(.shift)
             state.store.settings.keyChord = chord
+            recorded = true
             disarm()
             return nil
         }

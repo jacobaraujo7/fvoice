@@ -194,26 +194,6 @@ struct OnboardingView: View {
                 }
             }
 
-            VStack(alignment: .leading, spacing: 6) {
-                permissionRow(
-                    granted: inputMonitoringGranted,
-                    title: "Input Monitoring",
-                    detail: "Needed for the global recording shortcut."
-                ) {
-                    Button("Allow") { state.requestInputMonitoringAccess() }
-                }
-                if !inputMonitoringGranted {
-                    HStack(spacing: 8) {
-                        Text("macOS requires relaunching FVoice after granting this permission")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Button("Relaunch FVoice") { relaunch() }
-                            .font(.caption)
-                    }
-                    .padding(.leading, 30)
-                }
-            }
-
             permissionRow(
                 granted: accessibilityGranted,
                 title: "Accessibility",
@@ -278,11 +258,31 @@ struct OnboardingView: View {
             HStack {
                 Text("Recording shortcut")
                 Spacer()
-                HotkeyRecorderButton()
+                HotkeyRecorderButton(placeholderUntilRecorded: true)
             }
-            Text("Click, then press the desired combination (a key plus at least one modifier). Esc cancels.")
+            Text("Click and press the combination you want to use (a key plus at least one modifier). Esc cancels.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            VStack(alignment: .leading, spacing: 6) {
+                permissionRow(
+                    granted: inputMonitoringGranted,
+                    title: "Input Monitoring",
+                    detail: "Needed so the shortcut works in any app."
+                ) {
+                    Button("Allow") { state.requestInputMonitoringAccess() }
+                }
+                if !inputMonitoringGranted {
+                    HStack(spacing: 8) {
+                        Text("If FVoice is not in the list, add it with the + button pointing to the app. macOS requires relaunching FVoice after granting.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Button("Relaunch FVoice") { relaunch() }
+                            .font(.caption)
+                    }
+                    .padding(.leading, 30)
+                }
+            }
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("Try it: press the shortcut and say something.")
@@ -317,13 +317,14 @@ struct OnboardingView: View {
             if step < stepCount - 1 {
                 Button("Continue") { step += 1 }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(step == 2 && !allPermissionsGranted)
+                    .disabled(step == 2 && !(micGranted && accessibilityGranted))
             } else {
                 Button("Finish") {
                     state.store.settings.hasCompletedOnboarding = true
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
+                .disabled(!inputMonitoringGranted)
             }
         }
         .padding(16)
