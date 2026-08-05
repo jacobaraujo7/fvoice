@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Import Developer ID certificate
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN=build.keychain
+          security create-keychain -p ci "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain
+          security default-keychain -s "$KEYCHAIN"
+          security unlock-keychain -p ci "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          echo "$MACOS_CERT_P12" | base64 -d > cert.p12
+          security import cert.p12 -k "$KEYCHAIN" -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k ci "$KEYCHAIN" > /dev/null
+          rm cert.p12
+
+      - name: Build, notarize and staple DMG
+        env:
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "$APPLE_API_KEY" > AuthKey.p8
+          tool/package.sh "$VERSION" \
+            --key AuthKey.p8 --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER"
+          rm AuthKey.p8
+
+      - name: Sign update for Sparkle and append to appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          DMG="dist/FVoice-${VERSION}-macos.dmg"
+          SIGN_UPDATE=$(find build/SourcePackages/artifacts -name sign_update -type f | head -1)
+          echo "$SPARKLE_PRIVATE_KEY" > sparkle_key
+          SIGNATURE=$("$SIGN_UPDATE" --ed-key-file sparkle_key "$DMG")
+          rm sparkle_key
+          echo "signature attrs: $SIGNATURE"
+          python3 - "$VERSION" "$SIGNATURE" <<'EOF'
+          import sys, datetime, pathlib
+          version, sig_attrs = sys.argv[1], sys.argv[2]
+          url = f"https://github.com/jacobaraujo7/fvoice/releases/download/v{version}/FVoice-{version}-macos.dmg"
+          date = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+          item = f"""    <item>
+                <title>Version {version}</title>
+                <pubDate>{date}</pubDate>
+                <sparkle:version>{version}</sparkle:version>
+                <sparkle:shortVersionString>{version}</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                <enclosure url="{url}" {sig_attrs} type="application/octet-stream"/>
+              </item>
+          """
+          item = "\n".join(line[8:] if line.startswith(" " * 8) else line for line in item.splitlines()) + "\n"
+          path = pathlib.Path("appcast.xml")
+          content = path.read_text()
+          path.write_text(content.replace("  </channel>", item + "  </channel>"))
+          EOF
+          cat appcast.xml
+
+      - name: Commit appcast to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git stash push appcast.xml
+          git checkout main
+          git stash pop
+          git add appcast.xml
+          git commit -m "chore: appcast entry for ${GITHUB_REF_NAME}"
+          git push origin main
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" "dist/FVoice-${VERSION}-macos.dmg" \
+            --title "FVoice ${VERSION}" --generate-notes
