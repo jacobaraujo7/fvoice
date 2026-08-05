@@ -3,4 +3,5 @@
 build/
 DerivedData/
 .build/
-.claude/
+.claude/worktrees/
+.cockpit/worktrees/
