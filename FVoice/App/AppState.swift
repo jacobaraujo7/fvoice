@@ -153,6 +153,7 @@ final class AppState: ObservableObject {
     /// press becomes an input-mute gesture instead of play/pause. Handle it as
     /// "stop and transcribe".
     private func registerInputMuteGesture() {
+        try? AVAudioApplication.shared.setInputMuted(false)
         do {
             try AVAudioApplication.shared.setInputMuteStateChangeHandler { [weak self] muted in
                 // Only the mute gesture (true) is the stem press. The false
@@ -258,6 +259,9 @@ final class AppState: ObservableObject {
         } else {
             guard engineReady else { return }
             do {
+                // The system-level input mute may be stuck on (stem gesture,
+                // previous session); a muted input records pure silence.
+                try? AVAudioApplication.shared.setInputMuted(false)
                 recorder.preferredDeviceUID = store.settings.preferredMicUID
                 try recorder.startRecording()
                 status = .recording
