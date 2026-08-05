@@ -6,6 +6,18 @@
 
 App de ditado (speech-to-text) 100% local para macOS (Apple Silicon). Menu bar app, push-to-talk global, transcrição via WhisperKit no Neural Engine, foco em PT-BR.
 
+## Instalação
+
+1. Baixe o `.dmg` mais recente em [Releases](https://github.com/jacobaraujo7/fvoice/releases/latest).
+2. Abra o `.dmg` e arraste o **FVoice** para a pasta **Applications**.
+3. Abra o FVoice (ícone de waveform na barra de menu). O app é assinado e notarizado pela Apple, então abre sem avisos de segurança.
+4. No primeiro uso, o **Setup Assistant** guia você: escolha de idioma e engine (o modelo Whisper baixa nessa hora, se escolhido), permissões (Microfone, Acessibilidade e Monitoramento de Entrada) e gravação do seu atalho.
+5. Pronto: pressione seu atalho em qualquer app, fale, pressione de novo e o texto aparece no cursor.
+
+Atualizações chegam automaticamente pelo próprio app (menu → Check for Updates), direto dos releases do GitHub.
+
+Requisitos: macOS 14+ em Apple Silicon. O engine da Apple (SpeechTranscriber) requer macOS 26.
+
 ## Build
 
 Requisitos: macOS 14+, Xcode CLT, [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
