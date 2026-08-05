@@ -54,6 +54,7 @@ final class AppState: ObservableObject {
     /// Safety net: stop and transcribe if a recording is left running.
     private static let maxRecordingSeconds: TimeInterval = 120
     private var autoStopTimer: Timer?
+    private var hotkeyRetryTimer: Timer?
 
     // Hybrid streaming: dictations under chunkSeconds are transcribed in one
     // pass (best quality); beyond that, completed chunks are transcribed while
@@ -126,6 +127,19 @@ final class AppState: ObservableObject {
         }
         if !hotkey.start() {
             status = .needsInputMonitoring
+            // Keep trying: once the user grants Input Monitoring, the tap can
+            // usually be created without relaunching.
+            hotkeyRetryTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+                Task { @MainActor in
+                    guard let self else { return }
+                    if self.hotkey.isRunning || self.hotkey.start() {
+                        DebugLog.log("hotkey tap recovered after permission grant")
+                        if self.status == .needsInputMonitoring { self.status = .idle }
+                        self.hotkeyRetryTimer?.invalidate()
+                        self.hotkeyRetryTimer = nil
+                    }
+                }
+            }
         }
         checkMicrophone()
         checkAccessibility()

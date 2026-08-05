@@ -37,6 +37,8 @@ final class GlobalHotkeyMonitor: HotkeyMonitor {
         return flags
     }
 
+    var isRunning: Bool { tap != nil }
+
     @discardableResult
     func start() -> Bool {
         guard tap == nil else { return true }
