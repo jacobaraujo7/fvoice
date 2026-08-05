@@ -35,7 +35,12 @@ private struct GeneralSettingsTab: View {
                         .resizable()
                         .frame(width: 48, height: 48)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("FVoice").font(.headline)
+                        HStack(spacing: 6) {
+                            Text("FVoice").font(.headline)
+                            Text("v\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?")")
+                                .font(.caption.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
                         Text("100% local dictation, straight to your cursor")
                             .font(.caption)
                             .foregroundStyle(.secondary)
