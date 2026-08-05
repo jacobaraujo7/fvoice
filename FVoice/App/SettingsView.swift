@@ -13,8 +13,11 @@ struct SettingsView: View {
         .frame(width: 580, height: 560)
         .onAppear {
             NSApp.activate(ignoringOtherApps: true)
-            NSApp.windows.first { $0.identifier?.rawValue.contains("Settings") == true }?
-                .makeKeyAndOrderFront(nil)
+            if let window = NSApp.windows.first(where: { $0.identifier?.rawValue.contains("Settings") == true }) {
+                // Menu bar app: keep this window above others or it gets lost.
+                window.level = .floating
+                window.makeKeyAndOrderFront(nil)
+            }
         }
     }
 }

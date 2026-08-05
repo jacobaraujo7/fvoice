@@ -41,6 +41,11 @@ struct OnboardingView: View {
                 step = 2
             }
             NSApp.activate(ignoringOtherApps: true)
+            if let window = NSApp.windows.first(where: { $0.identifier?.rawValue.contains("onboarding") == true }) {
+                // Menu bar app: keep this window above others or it gets lost.
+                window.level = .floating
+                window.makeKeyAndOrderFront(nil)
+            }
         }
         .onReceive(timer) { _ in refreshPermissions() }
     }
