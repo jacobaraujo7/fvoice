@@ -94,12 +94,9 @@ private struct GeneralSettingsTab: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Vocabulary hints")
-                    TextField("worktree, refactor, staging, use case…",
+                    TextField("Comma-separated jargon, e.g. worktree, refactor, staging (Whisper only)",
                               text: state.binding(\.vocabulary))
                         .textFieldStyle(.roundedBorder)
-                    Text("Comma-separated terms that bias Whisper toward your jargon. Whisper engine only.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
                 .padding(.vertical, 4)
             }
