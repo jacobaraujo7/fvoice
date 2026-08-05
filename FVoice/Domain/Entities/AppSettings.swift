@@ -6,8 +6,8 @@ enum InsertMode: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .typing: return "Typing (recommended)"
-        case .hook: return "Hook (run script)"
+        case .typing: return String(localized: "Typing (recommended)")
+        case .hook: return String(localized: "Hook (run script)")
         }
     }
 }
@@ -56,8 +56,8 @@ enum EngineChoice: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .whisper: return "Whisper · on-device model"
-        case .apple: return "Apple SpeechTranscriber · minimal RAM (system managed)"
+        case .whisper: return String(localized: "Whisper · on-device model")
+        case .apple: return String(localized: "Apple SpeechTranscriber · minimal RAM (system managed)")
         }
     }
 }
@@ -69,9 +69,9 @@ enum WhisperModel: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .turbo: return "Large-v3 turbo · best accuracy · ~2 GB RAM"
-        case .small: return "Small · ~600 MB RAM"
-        case .base: return "Base · fastest · ~250 MB RAM"
+        case .turbo: return String(localized: "Large-v3 turbo · best accuracy · ~2 GB RAM")
+        case .small: return String(localized: "Small · ~600 MB RAM")
+        case .base: return String(localized: "Base · fastest · ~250 MB RAM")
         }
     }
     /// WhisperKit model variant name (always multilingual, never .en).

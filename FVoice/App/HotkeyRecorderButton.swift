@@ -10,7 +10,7 @@ struct HotkeyRecorderButton: View {
         Button {
             armed ? disarm() : arm()
         } label: {
-            Text(armed ? "Press keys…" : state.store.settings.keyChord.display)
+            Text(armed ? String(localized: "Press keys…") : state.store.settings.keyChord.display)
                 .frame(minWidth: 120)
         }
         .buttonStyle(.bordered)

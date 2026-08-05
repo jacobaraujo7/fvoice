@@ -16,13 +16,17 @@ struct MenuBarContentView: View {
         case .warming:
             Text("Loading model…")
         case .idle:
-            Text(state.store.settings.pushToTalk
-                 ? "Ready — hold \(chord) to talk"
-                 : "Ready — \(chord) to record")
+            if state.store.settings.pushToTalk {
+                Text("Ready: hold \(chord) to talk")
+            } else {
+                Text("Ready: \(chord) to record")
+            }
         case .recording:
-            Text(state.store.settings.pushToTalk
-                 ? "Recording… release to transcribe"
-                 : "Recording… \(chord) to stop")
+            if state.store.settings.pushToTalk {
+                Text("Recording… release to transcribe")
+            } else {
+                Text("Recording… \(chord) to stop")
+            }
         case .transcribing:
             Text("Transcribing…")
         case .error(let message):
@@ -42,12 +46,16 @@ struct MenuBarContentView: View {
             }
         }
 
-        Button(state.isRecording ? "Stop recording" : "Record") {
-            state.toggle()
-        }
         if state.isRecording {
+            Button("Stop recording") {
+                state.toggle()
+            }
             Button("Cancel (Esc)") {
                 state.cancelRecording()
+            }
+        } else {
+            Button("Record") {
+                state.toggle()
             }
         }
 

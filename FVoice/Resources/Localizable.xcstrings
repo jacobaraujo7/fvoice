@@ -1,0 +1,720 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "100% local dictation, straight to your cursor" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "100% local dictation, straight to your cursor" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Dictado 100% local, directo a tu cursor" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ditado 100% local, direto no seu cursor" } }
+      }
+    },
+    "Accessibility" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Accesibilidad" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Acessibilidade" } }
+      }
+    },
+    "Allow" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allow" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Permitir" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Permitir" } }
+      }
+    },
+    "Apple SpeechTranscriber" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apple SpeechTranscriber" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apple SpeechTranscriber" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apple SpeechTranscriber" } }
+      }
+    },
+    "Apple SpeechTranscriber · minimal RAM (system managed)" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apple SpeechTranscriber · minimal RAM (system managed)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apple SpeechTranscriber · RAM mínima (gestionado por el sistema)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apple SpeechTranscriber · RAM mínima (gerenciado pelo sistema)" } }
+      }
+    },
+    "Apple: faster. Whisper: better with technical terms." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Apple: faster. Whisper: better with technical terms." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apple: más rápido. Whisper: mejor con términos técnicos." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Apple: mais rápido. Whisper: melhor com termos técnicos." } }
+      }
+    },
+    "Auto Enter" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto Enter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enter automático" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Enter automático" } }
+      }
+    },
+    "Auto-detect" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-detect" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Detección automática" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Detecção automática" } }
+      }
+    },
+    "Auto-detect works on Whisper only; the Apple engine falls back to the system language." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Auto-detect works on Whisper only; the Apple engine falls back to the system language." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La detección automática solo funciona con Whisper; el motor de Apple usa el idioma del sistema." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "A detecção automática funciona apenas no Whisper; o motor da Apple usa o idioma do sistema." } }
+      }
+    },
+    "Back" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atrás" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Voltar" } }
+      }
+    },
+    "Base · fastest · ~250 MB RAM" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Base · fastest · ~250 MB RAM" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Base · el más rápido · ~250 MB de RAM" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Base · mais rápido · ~250 MB de RAM" } }
+      }
+    },
+    "Best accuracy with technical jargon" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Best accuracy with technical jargon" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mejor precisión con jerga técnica" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Melhor precisão com jargão técnico" } }
+      }
+    },
+    "Cancel (Esc)" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel (Esc)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar (Esc)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar (Esc)" } }
+      }
+    },
+    "Check for Updates…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar actualizaciones…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Verificar atualizações…" } }
+      }
+    },
+    "Chinese" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Chinese" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Chino" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Chinês" } }
+      }
+    },
+    "Clear history" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear history" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Borrar historial" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Limpar histórico" } }
+      }
+    },
+    "Click, then press the desired combination (a key plus at least one modifier). Esc cancels." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Click, then press the desired combination (a key plus at least one modifier). Esc cancels." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Haz clic y pulsa la combinación deseada (una tecla más al menos un modificador). Esc cancela." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Clique e pressione a combinação desejada (uma tecla mais pelo menos um modificador). Esc cancela." } }
+      }
+    },
+    "Comma-separated jargon, e.g. worktree, refactor, staging (Whisper only)" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Comma-separated jargon, e.g. worktree, refactor, staging (Whisper only)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Jerga separada por comas, p. ej. worktree, refactor, staging (solo Whisper)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Jargões separados por vírgula, ex. worktree, refactor, staging (apenas Whisper)" } }
+      }
+    },
+    "Continue" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Continuar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Continuar" } }
+      }
+    },
+    "Copy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Copiar" } }
+      }
+    },
+    "Copy to clipboard" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy to clipboard" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiar al portapapeles" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Copiar para a área de transferência" } }
+      }
+    },
+    "Downloading model… %lld%%" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Downloading model… %lld%%" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Descargando modelo… %lld%%" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Baixando modelo… %lld%%" } }
+      }
+    },
+    "Engine" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Engine" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Motor" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Motor" } }
+      }
+    },
+    "English" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "English" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inglés" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Inglês" } }
+      }
+    },
+    "Error: %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Error: %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Error: %@" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Erro: %@" } }
+      }
+    },
+    "Finish" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Finish" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Finalizar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Concluir" } }
+      }
+    },
+    "French" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "French" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Francés" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Francês" } }
+      }
+    },
+    "General" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "General" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Geral" } }
+      }
+    },
+    "German" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "German" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alemán" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Alemão" } }
+      }
+    },
+    "History" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Histórico" } }
+      }
+    },
+    "Hold the shortcut to record, release to transcribe. Off: press once to start, again to stop." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hold the shortcut to record, release to transcribe. Off: press once to start, again to stop." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mantén el atajo para grabar y suéltalo para transcribir. Desactivado: pulsa una vez para empezar y otra para detener." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Segure o atalho para gravar e solte para transcrever. Desligado: pressione uma vez para começar e outra para parar." } }
+      }
+    },
+    "Hook (run script)" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hook (run script)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hook (ejecutar script)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Hook (executar script)" } }
+      }
+    },
+    "Hook script" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hook script" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Script del hook" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Script do hook" } }
+      }
+    },
+    "Input" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Input" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Entrada" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrada" } }
+      }
+    },
+    "Input Monitoring" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Input Monitoring" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Monitorización de entrada" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Monitoramento de entrada" } }
+      }
+    },
+    "Input Monitoring permission missing" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Input Monitoring permission missing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Falta el permiso de Monitorización de entrada" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Falta a permissão de Monitoramento de entrada" } }
+      }
+    },
+    "It works!" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "It works!" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Funciona!" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Funcionou!" } }
+      }
+    },
+    "Italian" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Italian" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Italiano" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Italiano" } }
+      }
+    },
+    "Japanese" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Japanese" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Japonés" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Japonês" } }
+      }
+    },
+    "Korean" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Korean" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Coreano" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Coreano" } }
+      }
+    },
+    "Language" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Idioma" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Idioma" } }
+      }
+    },
+    "Language and engine" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language and engine" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Idioma y motor" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Idioma e motor" } }
+      }
+    },
+    "Large-v3 turbo · best accuracy · ~2 GB RAM" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Large-v3 turbo · best accuracy · ~2 GB RAM" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Large-v3 turbo · mejor precisión · ~2 GB de RAM" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Large-v3 turbo · melhor precisão · ~2 GB de RAM" } }
+      }
+    },
+    "Launch at login" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at login" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir al iniciar sesión" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir ao iniciar sessão" } }
+      }
+    },
+    "Loading model…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading model…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando modelo…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando modelo…" } }
+      }
+    },
+    "macOS requires relaunching FVoice after granting this permission" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "macOS requires relaunching FVoice after granting this permission" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "macOS requiere reiniciar FVoice después de conceder este permiso" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O macOS exige reabrir o FVoice depois de conceder esta permissão" } }
+      }
+    },
+    "Microphone" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Microphone" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Micrófono" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Microfone" } }
+      }
+    },
+    "Microphone changed, recording cancelled" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Microphone changed, recording cancelled" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El micrófono cambió, grabación cancelada" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O microfone mudou, gravação cancelada" } }
+      }
+    },
+    "Microphone permission missing" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Microphone permission missing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Falta el permiso del micrófono" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Falta a permissão do microfone" } }
+      }
+    },
+    "Mode" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mode" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Modo" } }
+      }
+    },
+    "Model load failed: %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Model load failed: %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Error al cargar el modelo: %@" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Falha ao carregar o modelo: %@" } }
+      }
+    },
+    "Needed for the global recording shortcut." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needed for the global recording shortcut." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Necesario para el atajo global de grabación." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Necessário para o atalho global de gravação." } }
+      }
+    },
+    "Needed to record your voice." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needed to record your voice." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Necesario para grabar tu voz." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Necessário para gravar sua voz." } }
+      }
+    },
+    "Needed to type the transcription at your cursor." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needed to type the transcription at your cursor." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Necesario para escribir la transcripción en tu cursor." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Necessário para digitar a transcrição no seu cursor." } }
+      }
+    },
+    "No transcriptions yet" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No transcriptions yet" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay transcripciones" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhuma transcrição ainda" } }
+      }
+    },
+    "Open Microphone Settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Microphone Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir ajustes del micrófono" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir ajustes do microfone" } }
+      }
+    },
+    "Open Privacy Settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Privacy Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir ajustes de privacidad" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir ajustes de privacidade" } }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir ajustes" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir ajustes" } }
+      }
+    },
+    "Permissions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Permissions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Permisos" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Permissões" } }
+      }
+    },
+    "Pin the Mac's microphone to keep full quality while wearing AirPods." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pin the Mac's microphone to keep full quality while wearing AirPods." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fija el micrófono del Mac para mantener la calidad total mientras usas AirPods." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Fixe o microfone do Mac para manter a qualidade total enquanto usa AirPods." } }
+      }
+    },
+    "Portuguese" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Portuguese" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Portugués" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Português" } }
+      }
+    },
+    "Press keys…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Press keys…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pulsa las teclas…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pressione as teclas…" } }
+      }
+    },
+    "Push to talk" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Push to talk" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pulsar para hablar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pressionar para falar" } }
+      }
+    },
+    "Quit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Salir" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Encerrar" } }
+      }
+    },
+    "RAM stays in use while FVoice runs. Smaller models respond faster but miss more jargon." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "RAM stays in use while FVoice runs. Smaller models respond faster but miss more jargon." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La RAM permanece en uso mientras FVoice está abierto. Los modelos más pequeños responden más rápido pero fallan más con la jerga." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "A RAM fica em uso enquanto o FVoice roda. Modelos menores respondem mais rápido, mas erram mais jargões." } }
+      }
+    },
+    "Ready in seconds, minimal RAM, faster" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready in seconds, minimal RAM, faster" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Listo en segundos, RAM mínima, más rápido" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pronto em segundos, RAM mínima, mais rápido" } }
+      }
+    },
+    "Ready: %@ to record" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready: %@ to record" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Listo: %@ para grabar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pronto: %@ para gravar" } }
+      }
+    },
+    "Ready: hold %@ to talk" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready: hold %@ to talk" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Listo: mantén %@ para hablar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pronto: segure %@ para falar" } }
+      }
+    },
+    "Record" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grabar" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gravar" } }
+      }
+    },
+    "Recording" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grabación" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gravação" } }
+      }
+    },
+    "Recording shortcut" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording shortcut" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo de grabación" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Atalho de gravação" } }
+      }
+    },
+    "Recording… %@ to stop" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording… %@ to stop" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grabando… %@ para detener" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gravando… %@ para parar" } }
+      }
+    },
+    "Recording… release to transcribe" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording… release to transcribe" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grabando… suelta para transcribir" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gravando… solte para transcrever" } }
+      }
+    },
+    "Relaunch FVoice" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Relaunch FVoice" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reiniciar FVoice" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Reabrir o FVoice" } }
+      }
+    },
+    "Russian" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Russian" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ruso" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Russo" } }
+      }
+    },
+    "Sends the prompt straight to Claude Code after inserting." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sends the prompt straight to Claude Code after inserting." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Envía el prompt directamente a Claude Code después de insertarlo." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Envia o prompt direto para o Claude Code depois de inserir." } }
+      }
+    },
+    "Set up later" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set up later" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Configurar más tarde" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Configurar depois" } }
+      }
+    },
+    "Settings…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ajustes…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ajustes…" } }
+      }
+    },
+    "Setup Assistant…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Setup Assistant…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Asistente de configuración…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Assistente de configuração…" } }
+      }
+    },
+    "Shortcut" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shortcut" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Atalho" } }
+      }
+    },
+    "Shortcut and test" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shortcut and test" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo y prueba" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Atalho e teste" } }
+      }
+    },
+    "Small · ~600 MB RAM" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Small · ~600 MB RAM" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Small · ~600 MB de RAM" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Small · ~600 MB de RAM" } }
+      }
+    },
+    "Spanish" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Spanish" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Español" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Espanhol" } }
+      }
+    },
+    "Stop recording" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stop recording" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Detener grabación" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Parar gravação" } }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } }
+      }
+    },
+    "System default" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System default" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Predeterminado del sistema" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Padrão do sistema" } }
+      }
+    },
+    "Text insertion" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text insertion" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inserción de texto" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Inserção de texto" } }
+      }
+    },
+    "Transcribing…" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Transcribing…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Transcribiendo…" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Transcrevendo…" } }
+      }
+    },
+    "Transcription" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Transcription" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Transcripción" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Transcrição" } }
+      }
+    },
+    "Transcription failed: %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Transcription failed: %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Error en la transcripción: %@" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Falha na transcrição: %@" } }
+      }
+    },
+    "Try again" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try again" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Intentar de nuevo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tentar novamente" } }
+      }
+    },
+    "Try it: press the shortcut and say something." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try it: press the shortcut and say something." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pruébalo: pulsa el atajo y di algo." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Experimente: pressione o atalho e diga algo." } }
+      }
+    },
+    "Typing (recommended)" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Typing (recommended)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Escritura (recomendado)" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Digitação (recomendado)" } }
+      }
+    },
+    "Use {{text}} where the transcription goes (also available as $FVOICE_TEXT). Runs in zsh instead of typing." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use {{text}} where the transcription goes (also available as $FVOICE_TEXT). Runs in zsh instead of typing." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Usa {{text}} donde va la transcripción (también disponible como $FVOICE_TEXT). Se ejecuta en zsh en lugar de escribir." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Use {{text}} onde a transcrição entra (também disponível como $FVOICE_TEXT). Executa no zsh em vez de digitar." } }
+      }
+    },
+    "Vocabulary hints" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vocabulary hints" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pistas de vocabulario" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dicas de vocabulário" } }
+      }
+    },
+    "Welcome to FVoice" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome to FVoice" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Bienvenido a FVoice" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Bem-vindo ao FVoice" } }
+      }
+    },
+    "Whisper" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Whisper" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Whisper" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Whisper" } }
+      }
+    },
+    "Whisper large-v3 turbo" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Whisper large-v3 turbo" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Whisper large-v3 turbo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Whisper large-v3 turbo" } }
+      }
+    },
+    "Whisper model" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Whisper model" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modelo de Whisper" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Modelo do Whisper" } }
+      }
+    },
+    "Whisper · on-device model" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Whisper · on-device model" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Whisper · modelo en el dispositivo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Whisper · modelo no dispositivo" } }
+      }
+    },
+    "Your last 10 dictations of this session appear here." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your last 10 dictations of this session appear here." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tus últimos 10 dictados de esta sesión aparecen aquí." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Seus últimos 10 ditados desta sessão aparecem aqui." } }
+      }
+    },
+    "Your transcription will appear here." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your transcription will appear here." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu transcripción aparecerá aquí." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sua transcrição aparecerá aqui." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

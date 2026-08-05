@@ -132,7 +132,7 @@ struct OnboardingView: View {
         }
     }
 
-    private func engineCard(choice: EngineChoice, title: String, subtitle: String, icon: String) -> some View {
+    private func engineCard(choice: EngineChoice, title: LocalizedStringKey, subtitle: LocalizedStringKey, icon: String) -> some View {
         let selected = state.store.settings.engine == choice
         return Button {
             state.store.settings.engine = choice
@@ -258,8 +258,8 @@ struct OnboardingView: View {
 
     private func permissionRow<Actions: View>(
         granted: Bool,
-        title: String,
-        detail: String,
+        title: LocalizedStringKey,
+        detail: LocalizedStringKey,
         @ViewBuilder actions: () -> Actions
     ) -> some View {
         HStack(spacing: 10) {

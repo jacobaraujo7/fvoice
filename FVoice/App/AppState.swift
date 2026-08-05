@@ -121,7 +121,7 @@ final class AppState: ObservableObject {
         recorder.onInterrupted = { [weak self] in
             guard let self else { return }
             self.overlay.hide()
-            self.status = .error("Microphone changed, recording cancelled")
+            self.status = .error(String(localized: "Microphone changed, recording cancelled"))
             NSSound(named: "Basso")?.play()
         }
         if !hotkey.start() {
@@ -169,7 +169,7 @@ final class AppState: ObservableObject {
                 engineReady = true
                 if !isRecording { status = .idle }
             } catch {
-                status = .error("Model load failed: \(error.localizedDescription)")
+                status = .error(String(localized: "Model load failed: \(error.localizedDescription)"))
                 DebugLog.log("engine prepare failed: \(error)")
             }
         }
@@ -365,7 +365,7 @@ final class AppState: ObservableObject {
                 }
                 status = .idle
             } catch {
-                status = .error("Transcription failed: \(error.localizedDescription)")
+                status = .error(String(localized: "Transcription failed: \(error.localizedDescription)"))
                 DebugLog.log("transcribe failed: \(error)")
             }
         }

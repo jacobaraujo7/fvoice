@@ -265,7 +265,7 @@ private struct HistoryTab: View {
 private struct SettingsRow<Content: View>: View {
     let icon: String
     let color: Color
-    let title: String
+    let title: LocalizedStringKey
     @ViewBuilder let content: Content
 
     var body: some View {
