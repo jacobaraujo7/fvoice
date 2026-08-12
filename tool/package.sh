@@ -18,6 +18,8 @@ echo "==> Generating project and building Release ${VERSION}"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION}" \
   -c "Set :CFBundleVersion ${VERSION}" FVoice/App/Info.plist
 xcodegen generate
+# A previously signed/stapled Release bundle blocks incremental writes.
+rm -rf build/Build/Products/Release
 xcodebuild -scheme FVoice -configuration Release -derivedDataPath build \
   MARKETING_VERSION="${VERSION}" CURRENT_PROJECT_VERSION="${VERSION}" build | tail -2
 

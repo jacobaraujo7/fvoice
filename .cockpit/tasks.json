@@ -9,7 +9,7 @@
     {
       "label": "Release",
       "command": "sh",
-      "args": ["-c", "xcodegen generate && xcodebuild -scheme FVoice -configuration Release -derivedDataPath build build && { pkill -x FVoice; sleep 0.5; rm -rf /Applications/FVoice.app && ditto build/Build/Products/Release/FVoice.app /Applications/FVoice.app && open /Applications/FVoice.app; }"],
+      "args": ["-c", "xcodegen generate && rm -rf build/Build/Products/Release && xcodebuild -scheme FVoice -configuration Release -derivedDataPath build build && { pkill -x FVoice; sleep 0.5; rm -rf /Applications/FVoice.app && ditto build/Build/Products/Release/FVoice.app /Applications/FVoice.app && open /Applications/FVoice.app; }"],
       "kind": "oneShot"
     }
   ]
