@@ -72,12 +72,36 @@ final class MicRecorder: AudioCaptureService {
             self.onInterrupted?()
         }
 
-        input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
-            self?.append(buffer: buffer)
+        // installTap raises an ObjC NSException (fatal to Swift) when the
+        // device/format changes between reading it and installing, e.g. an
+        // AirPods connect/disconnect racing the start. Catch and surface it.
+        input.removeTap(onBus: 0)
+        var exceptionError: NSError?
+        let installed = FVCatchObjCException({
+            input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) { [weak self] buffer, _ in
+                self?.append(buffer: buffer)
+            }
+            engine.prepare()
+        }, &exceptionError)
+        guard installed else {
+            if let configObserver {
+                NotificationCenter.default.removeObserver(configObserver)
+                self.configObserver = nil
+            }
+            DebugLog.log("installTap failed: \(exceptionError?.localizedDescription ?? "unknown NSException")")
+            throw MicRecorderError.formatUnavailable
         }
 
-        engine.prepare()
-        try engine.start()
+        do {
+            try engine.start()
+        } catch {
+            input.removeTap(onBus: 0)
+            if let configObserver {
+                NotificationCenter.default.removeObserver(configObserver)
+                self.configObserver = nil
+            }
+            throw error
+        }
         isRecording = true
     }
 
